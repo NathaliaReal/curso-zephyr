@@ -1,0 +1,5 @@
+Name,Objective,Precondition,Folder,Status,Priority,Labels,Coverage,Step,Expected Result
+Recarga exitosa con valor válido,Validar comprobante exitoso,Cajero con sesión activa,Recargas/Celular,Draft,High,regresion,PROY-245,Ingresar al módulo de recargas,Se muestra el formulario
+,,,,,,,,Ingresar número y valor $10.000,Datos validados sin error
+,,,,,,,,Confirmar la recarga,Comprobante con estado Exitosa
+Recarga con número inválido,Validar mensaje de error,Cajero con sesión activa,Recargas/Celular,Draft,Normal,regresion,PROY-245,Ingresar número de 7 dígitos,"Mensaje ""Número inválido"""

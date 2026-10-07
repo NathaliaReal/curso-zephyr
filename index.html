@@ -1,0 +1,867 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Zephyr desde Cero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap">
+<style>
+/* Layout: guía de una columna con riel de módulos pegajoso; cada módulo termina en una práctica interactiva */
+:root{
+  --bg:#FFFFFF; --surface:#FFFFFF; --sunk:#F4F4F4; --fg:#0A0A0A; --muted:#4D4D4D; --line:#E3E3E3;
+  --accent:#D6006E; --accent-soft:#FBE1EC; --ink-on-accent:#FFFFFF;
+  --pass:#2F7A52; --pass-soft:#E3F2EA; --fail:#B3261E; --fail-soft:#FBE4E2;
+  --block:#8A5A00; --block-soft:#F8EDD6; --prog:#D6006E; --prog-soft:#FBE1EC; --none:#6E6E6E; --none-soft:#F0F0F0;
+  --shadow:0 1px 2px rgba(0,0,0,.08),0 8px 24px -12px rgba(0,0,0,.22);
+  --f-display:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-body:"IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", "SF Mono", Consolas, monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0A0A0A; --surface:#141414; --sunk:#1C1C1C; --fg:#FAFAFA; --muted:#B8B8B8; --line:#2B2B2B;
+  --accent:#FF3FA6; --accent-soft:#3A0F26; --ink-on-accent:#170010;
+  --pass:#6FCF9C; --pass-soft:#14301F; --fail:#FF8A80; --fail-soft:#3A1614;
+  --block:#E8B65A; --block-soft:#33260C; --prog:#FF3FA6; --prog-soft:#3A0F26; --none:#9A9A9A; --none-soft:#222222;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 28px -14px rgba(0,0,0,.65);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A0A0A; --surface:#141414; --sunk:#1C1C1C; --fg:#FAFAFA; --muted:#B8B8B8; --line:#2B2B2B;
+  --accent:#FF3FA6; --accent-soft:#3A0F26; --ink-on-accent:#170010;
+  --pass:#6FCF9C; --pass-soft:#14301F; --fail:#FF8A80; --fail-soft:#3A1614;
+  --block:#E8B65A; --block-soft:#33260C; --prog:#FF3FA6; --prog-soft:#3A0F26; --none:#9A9A9A; --none-soft:#222222;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 28px -14px rgba(0,0,0,.65);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16.5px;line-height:1.6}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:28px 64px;display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px}
+@media (max-width:860px){.wrap{grid-template-columns:minmax(0,1fr);gap:20px}}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.1rem,5vw,3.2rem);font-weight:600;line-height:1.08}
+h2{font-size:clamp(1.5rem,3vw,2rem);font-weight:600}
+h3{font-size:1.15rem;font-weight:600}
+p{margin:0;max-width:66ch}
+a{color:var(--accent)}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.muted{color:var(--muted)}
+kbd,.mono{font-family:var(--f-mono);font-size:.86em}
+kbd{background:var(--sunk);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;white-space:nowrap}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* riel */
+nav.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);align-self:start;display:flex;flex-direction:column;gap:4px}
+nav.rail .brand{font-family:var(--f-mono);font-weight:600;color:var(--accent);letter-spacing:.04em;font-size:1.1rem;margin-bottom:10px}
+nav.rail a{display:flex;gap:10px;align-items:baseline;text-decoration:none;color:var(--muted);padding:6px 10px;border-radius:8px;font-size:.95rem}
+nav.rail a span{font-family:var(--f-mono);font-size:.75rem;color:var(--accent)}
+nav.rail a:hover,nav.rail a.on{background:var(--accent-soft);color:var(--fg)}
+.progress{margin-top:14px;font-size:.8rem;color:var(--muted)}
+.bar{height:6px;background:var(--sunk);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
+@media (max-width:860px){
+  nav.rail{position:static;flex-direction:row;flex-wrap:wrap;gap:6px}
+  nav.rail .brand,.progress{width:100%}
+  nav.rail a{background:var(--surface);border:1px solid var(--line)}
+}
+
+main{display:flex;flex-direction:column;gap:72px;min-width:0}
+section{display:flex;flex-direction:column;gap:18px;scroll-margin-top:20px}
+
+/* hero */
+.hero{display:flex;flex-direction:column;gap:16px;padding-top:8px}
+.hero p.lead{font-size:1.2rem;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 12px;font-size:.85rem;text-decoration:none;color:var(--fg)}
+
+/* analogía */
+.analogy{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.an{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:8px;text-align:left;color:var(--fg);min-height:150px;transition:border-color .2s, transform .2s}
+.an:hover{border-color:var(--accent);transform:translateY(-2px)}
+.an .z{font-family:var(--f-mono);font-size:.78rem;color:var(--accent);font-weight:600;letter-spacing:.03em}
+.an .real{font-family:var(--f-display);font-weight:700;font-size:1.15rem}
+.an .back{display:none;color:var(--muted);font-size:.95rem}
+.an.flip .back{display:block}
+.an.flip .hint{display:none}
+.hint{font-size:.8rem;color:var(--muted);margin-top:auto}
+
+/* diagrama */
+.diagram{box-shadow:var(--shadow);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;overflow-x:auto}
+.diagram svg{display:block;min-width:640px;width:100%;height:auto}
+.diagram text{font-family:var(--f-body)}
+.node{cursor:pointer}
+.node rect{fill:var(--sunk);stroke:var(--line);stroke-width:1.5;transition:fill .2s}
+.node:hover rect,.node.on rect{fill:var(--accent-soft);stroke:var(--accent)}
+.node .t{fill:var(--fg);font-weight:700;font-size:14px}
+.node .s{fill:var(--muted);font-size:11.5px;font-family:var(--f-mono)}
+.edge{stroke:var(--muted);stroke-width:1.5;fill:none}
+.elabel{fill:var(--muted);font-size:11px;font-family:var(--f-mono)}
+.explain{background:var(--accent-soft);border-radius:var(--r);padding:14px 16px;min-height:72px}
+.explain b{font-family:var(--f-display)}
+
+/* pasos */
+.steps{display:flex;flex-direction:column;gap:0;border-left:2px solid var(--line);margin-left:12px}
+.step{position:relative;padding:0 0 22px 26px;display:flex;flex-direction:column;gap:6px}
+.step::before{content:attr(data-n);position:absolute;left:-14px;top:0;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--ink-on-accent);font-family:var(--f-mono);font-size:.8rem;font-weight:600;display:grid;place-items:center}
+.step h3{padding-top:1px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:4px}
+.opt{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.93rem}
+.opt b{display:block;font-family:var(--f-mono);font-size:.82rem;color:var(--accent)}
+
+/* tabs de script */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.tab{background:none;border:0;padding:8px 14px;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--fg);border-color:var(--accent);font-weight:700}
+.panel{padding-top:14px}
+pre{background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto;font-family:var(--f-mono);font-size:.85rem;line-height:1.55;margin:0}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.92rem;background:var(--surface)}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--sunk);font-family:var(--f-mono);font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+.coltable td:nth-child(3){min-width:200px}.coltable td:nth-child(4){min-width:180px;white-space:pre-line;font-size:.86rem}.coltable td:nth-child(5){min-width:170px}
+.tab[aria-pressed="true"]{color:var(--fg);border-color:var(--accent);font-weight:700}
+.fz{display:inline-block;font-weight:700}
+td.n{font-family:var(--f-mono);color:var(--muted);width:40px}
+
+/* laboratorio */
+.lab{box-shadow:var(--shadow);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px}
+@media (max-width:760px){.lab{grid-template-columns:minmax(0,1fr)}}
+.lab-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.tag{font-family:var(--f-mono);font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--ink-on-accent);border-radius:5px;padding:3px 8px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:.85rem;font-weight:700}
+.field label small{font-weight:400;color:var(--muted)}
+input,select,textarea{font:inherit;font-size:.95rem;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+textarea{resize:vertical;min-height:60px}
+.form{display:flex;flex-direction:column;gap:12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.steprows{display:flex;flex-direction:column;gap:8px}
+.steprow{display:grid;grid-template-columns:22px 1fr 1fr 28px;gap:6px;align-items:start}
+.steprow .k{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);padding-top:9px}
+.steprow button{background:none;border:0;color:var(--muted);padding-top:7px;font-size:1.1rem}
+@media (max-width:480px){.steprow{grid-template-columns:22px 1fr 28px}.steprow input:nth-of-type(2){grid-column:2}}
+.btn{background:var(--accent);color:var(--ink-on-accent);border:0;border-radius:8px;padding:9px 16px;font-weight:700}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn.small{padding:5px 10px;font-size:.85rem}
+.preview{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.pv-key{font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.pv-name{font-family:var(--f-display);font-size:1.15rem;font-weight:700;word-break:break-word}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font-family:var(--f-mono);font-size:.72rem;font-weight:600;border-radius:99px;padding:3px 9px;background:var(--sunk);color:var(--muted)}
+.check{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px;font-size:.9rem}
+.check li::before{content:"○";display:inline-block;width:1.4em;color:var(--muted)}
+.check li.ok::before{content:"●";color:var(--pass)}
+.score{font-family:var(--f-display);font-weight:600;font-size:1.6rem}
+
+/* estados */
+.st{font-family:var(--f-mono);font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-radius:6px;padding:3px 8px;white-space:nowrap;display:inline-block}
+.st-pass{background:var(--pass-soft);color:var(--pass)}
+.st-fail{background:var(--fail-soft);color:var(--fail)}
+.st-block{background:var(--block-soft);color:var(--block)}
+.st-prog{background:var(--prog-soft);color:var(--prog)}
+.st-none{background:var(--none-soft);color:var(--none)}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.legend div{display:flex;flex-direction:column;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;font-size:.92rem}
+
+/* ciclo */
+.cycle{box-shadow:var(--shadow);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.cyc-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.stack{display:flex;height:14px;border-radius:99px;overflow:hidden;background:var(--none-soft)}
+.stack i{display:block;height:100%;transition:width .35s}
+.counts{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;font-variant-numeric:tabular-nums}
+.counts span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:currentColor}
+.exec{display:flex;flex-direction:column;gap:8px}
+.ex{border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+.ex .k{font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
+.ex .nm{font-weight:700}
+.ex .acts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px}
+.ex .acts button{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;padding:4px 10px;font-size:.85rem}
+.ex .acts button.p:hover{border-color:var(--pass);color:var(--pass)}
+.ex .acts button.f:hover{border-color:var(--fail);color:var(--fail)}
+.ex .acts button.b:hover{border-color:var(--block);color:var(--block)}
+.ex .acts button.i:hover{border-color:var(--prog);color:var(--prog)}
+.bug{grid-column:1/-1;background:var(--fail-soft);color:var(--fg);border-radius:8px;padding:10px 12px;font-size:.9rem;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.bug code{font-family:var(--f-mono);color:var(--fail);font-weight:600}
+.toast{min-height:1.6em;font-size:.92rem;color:var(--muted)}
+
+/* trazabilidad */
+.trace{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:.92rem}
+.trace .box{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;display:flex;flex-direction:column}
+.trace .box small{font-family:var(--f-mono);color:var(--muted);font-size:.72rem}
+.trace .arr{color:var(--muted);font-family:var(--f-mono)}
+
+/* tips */
+.tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.tip{border-top:3px solid var(--accent);background:var(--surface);border-radius:0 0 var(--r) var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:6px;font-size:.95rem}
+.tip.bad{border-color:var(--fail)}
+.tip h3{font-size:1rem}
+
+/* quiz */
+.quiz{box-shadow:var(--shadow);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.q-count{font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.q-text{font-family:var(--f-display);font-size:1.25rem;font-weight:700}
+.answers{display:flex;flex-direction:column;gap:8px}
+.answers button{text-align:left;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+.answers button:hover:not(:disabled){border-color:var(--accent)}
+.answers button.right{background:var(--pass-soft);border-color:var(--pass)}
+.answers button.wrong{background:var(--fail-soft);border-color:var(--fail)}
+.answers button:disabled{cursor:default}
+.feedback{font-size:.95rem;min-height:1.5em}
+.q-nav{display:flex;justify-content:space-between;align-items:center;gap:10px}
+
+footer{font-size:.88rem;color:var(--muted);border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:6px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <nav class="rail" aria-label="Módulos">
+    <div class="brand">Zephyr desde Cero</div>
+    <a href="#m1"><span>01</span>¿Qué es?</a>
+    <a href="#m2"><span>02</span>Las piezas</a>
+    <a href="#m3"><span>03</span>Crear un caso</a>
+    <a href="#m-imp"><span>04</span>Subir casos</a>
+    <a href="#m4"><span>05</span>Ejecutar</a>
+    <a href="#m5"><span>06</span>Trazabilidad</a>
+    <a href="#m6"><span>07</span>Buenas prácticas</a>
+    <a href="#m7"><span>08</span>Quiz</a>
+    <div class="progress">Prácticas completadas: <b id="progTxt">0 de 4</b><div class="bar"><i id="progBar"></i></div></div>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <div class="eyebrow">Curso express · Equipo QA</div>
+      <h1>Zephyr, explicado como si fuera tu primer día</h1>
+      <p class="lead">Zephyr es una app que vive dentro de Jira y sirve para escribir casos de prueba, ejecutarlos y saber qué pasó. En 8 módulos cortos vas a entender cómo encaja todo y vas a practicar aquí mismo, sin miedo a dañar nada.</p>
+      <div class="meta">
+        <a class="chip" href="https://www.youtube.com/watch?v=6meaQOeq0rQ" target="_blank" rel="noopener">▶ Video base: Testing Para Todos</a>
+        <a class="chip" href="https://support.smartbear.com/zephyr/docs/en/index-en.html" target="_blank" rel="noopener">Documentación oficial</a>
+        <span class="chip">⏱ 20–25 min</span>
+      </div>
+    </header>
+
+    <!-- M1 -->
+    <section id="m1">
+      <div class="eyebrow">Módulo 01</div>
+      <h2>¿Qué es Zephyr? Piénsalo como una cocina</h2>
+      <p>Antes de ver botones, entiende la idea. Toca cada tarjeta para ver qué significa en Zephyr.</p>
+      <div class="analogy">
+        <button class="an" type="button"><span class="z">Test Library</span><span class="real">📚 El recetario</span><span class="back">Donde guardas todos los casos de prueba, ordenados en carpetas. Se escriben una vez y se reutilizan muchas veces.</span><span class="hint">Toca para ver →</span></button>
+        <button class="an" type="button"><span class="z">Test Case</span><span class="real">📝 Una receta</span><span class="back">Las instrucciones para probar una cosa: qué necesito antes, qué pasos sigo y qué debería pasar en cada uno.</span><span class="hint">Toca para ver →</span></button>
+        <button class="an" type="button"><span class="z">Test Cycle</span><span class="real">🍽 El menú de hoy</span><span class="back">La lista de recetas que vamos a cocinar en esta ronda (un sprint, una regresión), quién las hace y en qué ambiente.</span><span class="hint">Toca para ver →</span></button>
+        <button class="an" type="button"><span class="z">Test Execution</span><span class="real">👩‍🍳 Cocinar y probar</span><span class="back">Cada vez que alguien corre un caso dentro de un ciclo queda un registro: quién, cuándo, en qué ambiente y si pasó o falló.</span><span class="hint">Toca para ver →</span></button>
+        <button class="an" type="button"><span class="z">Test Plan</span><span class="real">🎉 El plan del evento</span><span class="back">Agrupa varios ciclos para ver el avance de todo un release o versión: alcance, riesgos, criterios de entrada y salida.</span><span class="hint">Toca para ver →</span></button>
+      </div>
+    </section>
+
+    <!-- M2 -->
+    <section id="m2">
+      <div class="eyebrow">Módulo 02</div>
+      <h2>Las piezas y cómo se conectan</h2>
+      <p>Esta es la foto completa. Haz clic en cada caja para ver qué hace.</p>
+      <div class="diagram">
+        <svg viewBox="0 0 760 270" role="img" aria-label="Relación entre historia de Jira, caso de prueba, ciclo, ejecución, bug y plan">
+          <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>
+          <path class="edge" d="M150 150 H200" marker-end="url(#ar)"/>
+          <path class="edge" d="M340 150 H390" marker-end="url(#ar)"/>
+          <path class="edge" d="M530 150 H580" marker-end="url(#ar)"/>
+          <path class="edge" d="M650 175 V215" marker-end="url(#ar)"/>
+          <path class="edge" d="M460 78 V122" marker-end="url(#ar)"/>
+          <text class="elabel" x="152" y="140">se prueba con</text>
+          <text class="elabel" x="342" y="140">se agrega a</text>
+          <text class="elabel" x="532" y="140">genera</text>
+          <text class="elabel" x="658" y="200">si falla</text>
+          <text class="elabel" x="468" y="105">agrupa</text>
+          <g class="node" data-k="story" tabindex="0"><rect x="10" y="122" width="140" height="56" rx="9"/><text class="t" x="80" y="146" text-anchor="middle">Historia Jira</text><text class="s" x="80" y="164" text-anchor="middle">el requisito</text></g>
+          <g class="node" data-k="case" tabindex="0"><rect x="200" y="122" width="140" height="56" rx="9"/><text class="t" x="270" y="146" text-anchor="middle">Caso de prueba</text><text class="s" x="270" y="164" text-anchor="middle">PROY-T12</text></g>
+          <g class="node" data-k="cycle" tabindex="0"><rect x="390" y="122" width="140" height="56" rx="9"/><text class="t" x="460" y="146" text-anchor="middle">Ciclo</text><text class="s" x="460" y="164" text-anchor="middle">PROY-R4</text></g>
+          <g class="node" data-k="exec" tabindex="0"><rect x="580" y="122" width="140" height="56" rx="9"/><text class="t" x="650" y="146" text-anchor="middle">Ejecución</text><text class="s" x="650" y="164" text-anchor="middle">Pass / Fail…</text></g>
+          <g class="node" data-k="bug" tabindex="0"><rect x="580" y="215" width="140" height="46" rx="9"/><text class="t" x="650" y="243" text-anchor="middle">Bug en Jira</text></g>
+          <g class="node" data-k="plan" tabindex="0"><rect x="390" y="22" width="140" height="56" rx="9"/><text class="t" x="460" y="46" text-anchor="middle">Plan de pruebas</text><text class="s" x="460" y="64" text-anchor="middle">PROY-P1</text></g>
+        </svg>
+      </div>
+      <div class="explain" id="explain" aria-live="polite"><b>Toca una caja.</b> Fíjate en las llaves: Zephyr les pone una letra según el tipo. <span class="mono">T</span> = caso, <span class="mono">R</span> = ciclo (de "run"), <span class="mono">P</span> = plan.</div>
+    </section>
+
+    <!-- M3 -->
+    <section id="m3">
+      <div class="eyebrow">Módulo 03</div>
+      <h2>Crear un caso de prueba, paso a paso</h2>
+      <p>Así se hace en Zephyr Cloud. Los nombres de los botones van en inglés porque así los verás en pantalla.</p>
+      <div class="steps">
+        <div class="step" data-n="1"><h3>Entra a tu proyecto y abre Zephyr</h3><p>En el menú del proyecto de Jira busca <b>Zephyr</b>. Ahí ves la pestaña <kbd>Test Cases</kbd> con el panel de carpetas a la izquierda.</p></div>
+        <div class="step" data-n="2"><h3>Elige o crea una carpeta</h3><p>Con <kbd>New Folder</kbd> creas una carpeta (por ejemplo, por módulo o funcionalidad). Selecciónala antes de crear el caso para que quede guardado ahí.</p></div>
+        <div class="step" data-n="3"><h3>Clic en <kbd>+ New Test Case</kbd></h3><p>Se abre una ventana. El único campo obligatorio es <b>Name</b>. Luego eliges cómo guardar:</p>
+          <div class="opts">
+            <div class="opt"><b>Create</b>Guarda y vuelve a la lista.</div>
+            <div class="opt"><b>Create and edit</b>Guarda y te lleva a escribir los pasos. La opción más usada.</div>
+            <div class="opt"><b>Create and record</b>Graba lo que haces en la app para dejar el caso listo para automatizar.</div>
+          </div>
+        </div>
+        <div class="step" data-n="4"><h3>Completa la pestaña <kbd>Details</kbd></h3><p><b>Objective</b> (qué se valida), <b>Precondition</b> (qué debe existir antes), <b>Status</b> (Draft mientras lo escribes, Approved cuando está revisado), <b>Priority</b>, <b>Labels</b>, <b>Components</b> y <b>Owner</b>.</p></div>
+        <div class="step" data-n="5"><h3>Escribe el guion en <kbd>Test Script</kbd></h3><p>Hay tres formas de escribirlo. Mira la diferencia:</p></div>
+        <div class="step" data-n="6"><h3>Enlázalo en <kbd>Traceability</kbd></h3><p>Vincula la historia o requisito de Jira que este caso prueba. Así, desde la historia, cualquiera ve si está cubierta. Las pestañas <kbd>Execution</kbd> e <kbd>History</kbd> te muestran ejecuciones pasadas y cambios del caso.</p></div>
+      </div>
+
+      <div>
+        <div class="tabs" role="tablist" aria-label="Tipos de Test Script">
+          <button class="tab" role="tab" aria-selected="true" aria-controls="sc1" id="t1">Step-by-step</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="sc2" id="t2">Plain text</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="sc3" id="t3">BDD (Gherkin)</button>
+        </div>
+        <div class="panel" role="tabpanel" id="sc1" aria-labelledby="t1">
+          <p class="muted" style="margin-bottom:10px">Una tabla con <b>paso</b>, <b>datos de prueba</b> y <b>resultado esperado</b>. Es la más clara para casos manuales y la que recomendamos para empezar.</p>
+          <div class="tablewrap"><table>
+            <thead><tr><th>#</th><th>Step</th><th>Test data</th><th>Expected result</th></tr></thead>
+            <tbody>
+              <tr><td class="n">1</td><td>Ingresar al módulo de recargas</td><td>Usuario: cajero_demo</td><td>Se muestra el formulario de recarga</td></tr>
+              <tr><td class="n">2</td><td>Seleccionar operador e ingresar número</td><td>Operador X · 3001234567</td><td>El número se valida sin errores</td></tr>
+              <tr><td class="n">3</td><td>Ingresar valor y confirmar</td><td>$10.000</td><td>Se genera comprobante con estado Exitosa</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="panel" role="tabpanel" id="sc2" aria-labelledby="t2" hidden>
+          <p class="muted" style="margin-bottom:10px">Un texto libre. Útil para pruebas exploratorias o checklists cortos, pero al ejecutar no puedes marcar paso por paso.</p>
+          <pre>Validar recarga exitosa:
+- Entrar con cajero_demo al módulo de recargas
+- Recargar $10.000 al 3001234567 (Operador X)
+- Verificar que el comprobante salga con estado Exitosa</pre>
+        </div>
+        <div class="panel" role="tabpanel" id="sc3" aria-labelledby="t3" hidden>
+          <p class="muted" style="margin-bottom:10px">Formato Dado / Cuando / Entonces. Ideal si el equipo trabaja con BDD o va a automatizar con Cucumber.</p>
+          <pre>Feature: Recargas
+  Scenario: Recarga exitosa con valor válido
+    Given que el cajero inició sesión en el módulo de recargas
+    When recarga $10.000 al número 3001234567 del Operador X
+    Then el sistema genera un comprobante con estado "Exitosa"</pre>
+        </div>
+      </div>
+
+      <div class="lab" id="lab1">
+        <div class="lab-head"><h3>Práctica 1 · Arma tu primer caso</h3><span class="tag">Simulador</span></div>
+        <form class="form" id="caseForm" autocomplete="off">
+          <div class="field"><label for="cName">Name <small>(obligatorio)</small></label><input id="cName" placeholder="Ej: Recarga exitosa con valor válido"></div>
+          <div class="field"><label for="cObj">Objective</label><input id="cObj" placeholder="¿Qué se valida?"></div>
+          <div class="field"><label for="cPre">Precondition</label><input id="cPre" placeholder="¿Qué debe existir antes?"></div>
+          <div class="row2">
+            <div class="field"><label for="cStatus">Status</label><select id="cStatus"><option>Draft</option><option>Approved</option><option>Deprecated</option></select></div>
+            <div class="field"><label for="cPrio">Priority</label><select id="cPrio"><option>Normal</option><option>High</option><option>Low</option></select></div>
+          </div>
+          <div class="field"><label for="cStory">Traceability <small>(historia de Jira)</small></label><input id="cStory" placeholder="Ej: PROY-245"></div>
+          <div class="field"><label>Test Script · Step-by-step</label>
+            <div class="steprows" id="stepRows"></div>
+            <div><button type="button" class="btn ghost small" id="addStep">+ Agregar paso</button></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost small" id="fillEx">Llenar con un ejemplo</button><button type="button" class="btn ghost small" id="clearCase">Limpiar</button></div>
+        </form>
+        <div class="preview">
+          <div class="pv-key">PROY-T<span id="pvNum">13</span></div>
+          <div class="pv-name" id="pvName">Sin nombre todavía</div>
+          <div class="pills"><span class="pill" id="pvStatus">Draft</span><span class="pill" id="pvPrio">Normal</span><span class="pill" id="pvStory">Sin historia</span></div>
+          <div class="muted" style="font-size:.9rem" id="pvSteps">0 pasos</div>
+          <hr style="border:0;border-top:1px solid var(--line);width:100%;margin:4px 0">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><b>¿Está listo para aprobar?</b><span class="score" id="pvScore">0/6</span></div>
+          <ul class="check" id="checklist">
+            <li data-c="name">Tiene un nombre claro (más de 10 letras)</li>
+            <li data-c="obj">Dice qué se valida (Objective)</li>
+            <li data-c="pre">Indica la precondición</li>
+            <li data-c="steps">Tiene al menos 2 pasos</li>
+            <li data-c="exp">Cada paso tiene resultado esperado</li>
+            <li data-c="trace">Está enlazado a una historia</li>
+          </ul>
+          <div class="toast" id="labMsg"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- IMPORTAR -->
+    <section id="m-imp">
+      <div class="eyebrow">Módulo 04</div>
+      <h2>Subir muchos casos de una vez (importar)</h2>
+      <p>Crear casos uno por uno sirve para pocos. Si los generó el agente o ya los tienes en Excel, Zephyr los sube todos juntos con un asistente: tienes el <b>CSV</b>, lo <b>importas</b> y <b>unes las columnas</b> con los campos de Zephyr.</p>
+
+      <div class="legend">
+        <div><span class="st st-pass">CSV</span>El formato principal. Si tus casos están en Excel, primero los guardas como CSV (una hoja = un archivo).</div>
+        <div><span class="st st-prog">XML</span>Solo si los casos vienen exportados de otra instancia de Zephyr.</div>
+        <div><span class="st st-none">.xlsx directo</span>No se puede. Siempre hay que convertir a CSV antes.</div>
+      </div>
+
+      <h3>¿De dónde vienen tus casos?</h3>
+      <div class="tabs" role="tablist" aria-label="Origen de los casos">
+        <button class="srctab tab" role="tab" aria-selected="true" aria-controls="src-agent" id="srcA">Del Agente de Gobernanza QA</button>
+        <button class="srctab tab" role="tab" aria-selected="false" aria-controls="src-excel" id="srcE">De un Excel propio</button>
+      </div>
+
+      <div id="src-agent" role="tabpanel" aria-labelledby="srcA" class="panel" style="display:flex;flex-direction:column;gap:16px">
+        <p>La skill <span class="mono">diseno-casos-prueba</span> del agente entrega dos archivos: un <b>CSV</b> y un <b>Excel corporativo</b>. A Zephyr se sube <b>el CSV</b>. El Excel queda como respaldo y para revisión.</p>
+        <div class="legend">
+          <div><span class="st st-pass">1 fila = 1 caso</span>El CSV del agente trae cada caso en una sola fila. No hay que armar filas por paso.</div>
+          <div><span class="st st-prog">Pasos en una celda</span>Todas las acciones van numeradas dentro de la columna <span class="mono">steps</span>, y hay un solo <span class="mono">expectedResult</span> general por caso.</div>
+          <div><span class="st st-none">Todo como borrador</span>Los casos llegan sin aprobar y entran a Zephyr con el estado por defecto (Draft).</div>
+        </div>
+
+        <p><b>Así se ve una fila del CSV del agente</b> (columnas principales de las 33 que trae):</p>
+        <div class="tablewrap"><table>
+          <thead><tr><th>testCaseId</th><th>storyId</th><th>title</th><th>testDomain</th><th>priority</th><th>preconditions</th><th>steps</th><th>stepCount</th><th>expectedResult</th></tr></thead>
+          <tbody><tr><td class="mono">CP-001</td><td class="mono">PROY-245</td><td>Recarga exitosa con valor válido</td><td>Funcional</td><td>Alta</td><td>Cajero con sesión activa</td><td style="white-space:pre-line;min-width:220px">1. Ingresar al módulo de recargas
+2. Ingresar número y valor $10.000
+3. Confirmar la recarga</td><td class="mono">3</td><td>Se genera el comprobante con estado Exitosa</td></tr></tbody>
+        </table></div>
+
+        <div class="tip bad" style="border-radius:var(--r)"><h3>No abras y guardes el CSV con Excel</h3><p>Excel puede cambiar la codificación, el separador o romper los saltos de línea de la columna <span class="mono">steps</span>. Sube a Zephyr el archivo tal cual lo entregó el agente. Si necesitas corregir algo, pídeselo al agente o edítalo en el Excel corporativo.</p></div>
+
+        <h3>Las 33 columnas del CSV y a qué campo de Zephyr va cada una</h3>
+        <p>Esto es lo que eliges en el paso <b>Field Mapping</b> del asistente. Filtra para ver solo lo que se mapea.</p>
+        <div class="tabs" role="group" aria-label="Filtrar columnas" id="colFilter">
+          <button class="tab colf" type="button" data-f="all" aria-pressed="true">Todas (33)</button>
+          <button class="tab colf" type="button" data-f="map" aria-pressed="false">Se mapean (8)</button>
+          <button class="tab colf" type="button" data-f="custom" aria-pressed="false">Campo personalizado (16)</button>
+          <button class="tab colf" type="button" data-f="skip" aria-pressed="false">No mapear (9)</button>
+        </div>
+        <div class="tablewrap"><table class="coltable">
+          <thead><tr><th>#</th><th>Columna del agente</th><th>Qué contiene</th><th>Ejemplo</th><th>Campo en Zephyr</th></tr></thead>
+          <tbody id="colBody"></tbody>
+        </table></div>
+        <p class="muted" style="font-size:.9rem"><b>Campo personalizado</b> significa que Zephyr no tiene un campo propio para ese dato. Si el administrador crea un campo personalizado (Configuration → Custom Fields), lo puedes mapear. Si no, no lo mapeas y el dato se conserva en el CSV y en el Excel corporativo. El campo <b>Objective</b> de Zephyr queda vacío porque el CSV no trae una columna equivalente.</p>
+
+        <div class="tips">
+          <div class="tip"><h3>Un solo paso por caso</h3><p>Como el agente entrega los pasos en una celda, en Zephyr cada caso queda con un bloque de pasos y un resultado. Al ejecutar, el resultado se marca para el caso completo.</p></div>
+          <div class="tip bad"><h3>No reimportes el mismo archivo</h3><p>La carga manual no evita duplicados. Si subes dos veces el mismo CSV, quedan dos copias de cada caso.</p></div>
+          <div class="tip"><h3>Confirma el mapeo con una carga pequeña</h3><p>Antes de subir un set completo, importa 2 o 3 casos a una carpeta de prueba y revisa cómo quedaron.</p></div>
+        </div>
+      </div>
+
+      <div id="src-excel" role="tabpanel" aria-labelledby="srcE" class="panel" hidden style="display:flex;flex-direction:column;gap:16px">
+      <h3>Paso A · Arma el archivo con estas columnas</h3>
+      <p>Una fila por paso. <b>La regla de oro:</b> el <b>Name</b> va solo en la primera fila del caso. Las filas siguientes llevan solo el paso y su resultado esperado, con <b>Name vacío</b>. Zephyr usa el nombre para saber dónde empieza cada caso, así que si lo repites en cada fila, cada paso se convierte en un caso aparte.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Name</th><th>Objective</th><th>Precondition</th><th>Folder</th><th>Status</th><th>Priority</th><th>Labels</th><th>Coverage</th><th>Step</th><th>Expected Result</th></tr></thead>
+        <tbody>
+          <tr><td><b>Recarga exitosa con valor válido</b></td><td>Validar comprobante exitoso</td><td>Cajero con sesión activa</td><td>Recargas/Celular</td><td>Draft</td><td>High</td><td>regresion</td><td>PROY-245</td><td>Ingresar al módulo de recargas</td><td>Se muestra el formulario</td></tr>
+          <tr><td class="muted">(vacío)</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>Ingresar número y valor $10.000</td><td>Datos validados sin error</td></tr>
+          <tr><td class="muted">(vacío)</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>Confirmar la recarga</td><td>Comprobante con estado Exitosa</td></tr>
+          <tr><td><b>Recarga con número inválido</b></td><td>Validar mensaje de error</td><td>Cajero con sesión activa</td><td>Recargas/Celular</td><td>Draft</td><td>Normal</td><td>regresion</td><td>PROY-245</td><td>Ingresar número de 7 dígitos</td><td>Mensaje "Número inválido"</td></tr>
+        </tbody>
+      </table></div>
+      <div class="opts">
+        <div class="opt"><b>Name</b>El único obligatorio. Una línea.</div>
+        <div class="opt"><b>Folder</b>Usa <span class="mono">/</span> para subcarpetas. Si no existe, Zephyr la crea.</div>
+        <div class="opt"><b>Coverage</b>Llaves de Jira separadas por coma: <span class="mono">PROY-245, PROY-250</span>.</div>
+        <div class="opt"><b>Status / Priority</b>Deben existir en tu Zephyr; si no, los asocias en el asistente.</div>
+        <div class="opt"><b>Owner</b>Pide el ID de cuenta de Jira, no el nombre. Mejor déjalo vacío.</div>
+        <div class="opt"><b>Step o Plain Text</b>Usa columnas Step + Expected Result, o una sola de texto plano. Nunca las dos.</div>
+      </div>
+
+      <h3>Paso B · Guárdalo como CSV en Excel</h3>
+      <div class="steps">
+        <div class="step" data-n="1"><h3>Archivo → Guardar como</h3><p>En tipo de archivo elige <kbd>CSV UTF-8 (delimitado por comas)</kbd>. El UTF-8 es lo que hace que las tildes y la ñ lleguen bien.</p></div>
+        <div class="step" data-n="2"><h3>Ojo con el separador</h3><p>Excel en español suele separar con <b>punto y coma (;)</b> en vez de coma. No pasa nada: solo recuerda cuál quedó, porque Zephyr te lo pregunta.</p></div>
+      </div>
+
+      </div>
+
+      <h3>Impórtalo con el asistente de Zephyr (igual para los dos casos)</h3>
+      <div class="steps">
+        <div class="step" data-n="1"><h3>Abre el importador</h3><p>En tu proyecto ve a <kbd>Test Cases</kbd> → <kbd>More</kbd> → <kbd>Import from File</kbd> y elige <kbd>Excel CSV</kbd>.</p></div>
+        <div class="step" data-n="2"><h3>Sube el archivo</h3><p>Arrástralo o usa <kbd>Choose the File</kbd>.</p></div>
+        <div class="step" data-n="3"><h3>Setup: configura la lectura</h3><p><b>Destination Folder</b> (carpeta destino), <b>Date Format</b>, <b>File Encoding</b> = UTF-8, <b>CSV Delimiter</b> = coma o punto y coma según tu archivo, <b>Start Import at Row</b> y deja marcado <i>This row contains the field names</i> si la fila 1 tiene los títulos.</p></div>
+        <div class="step" data-n="4"><h3>Field Mapping: une tus columnas con los campos</h3><p>Dile a Zephyr qué columna es cuál. Si el archivo viene del agente, usa la tabla de mapeo de arriba; si es tu Excel, une "Step" con <i>Test Script (Steps) – Step</i> y así con cada columna. <b>Lo que no mapees no se importa.</b></p></div>
+        <div class="step" data-n="5"><h3>Data Mapping: une los valores</h3><p>Asocia los valores de Status, Priority, Components y Labels de tu archivo con los que existen en Zephyr. Puedes dejar que cree los labels que falten. Clic en <kbd>Import</kbd>.</p></div>
+        <div class="step" data-n="6"><h3>Results: revisa</h3><p>Zephyr muestra cuántos casos creó y los avisos o errores. Abre dos o tres casos y confirma que los pasos quedaron agrupados bien.</p></div>
+      </div>
+
+      <div class="lab" id="lab3" style="grid-template-columns:minmax(0,1fr)">
+        <div class="lab-head"><h3>Práctica 2 · Revisa tu CSV antes de subirlo</h3><span class="tag">Validador</span></div>
+        <p class="muted">Pega aquí el contenido del CSV (ábrelo con el Bloc de notas, copia y pega) o carga un ejemplo. Reconoce solo si viene del agente o de un Excel propio, te dice cuántos casos va a crear Zephyr y qué está mal. Nada sale de tu navegador.</p>
+        <div class="field"><label for="csvIn">Contenido del CSV <small>(la fila 1 debe tener los títulos de columna)</small></label><textarea id="csvIn" rows="9" spellcheck="false" style="font-family:var(--f-mono);font-size:.82rem"></textarea></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn" id="csvCheck">Revisar archivo</button>
+          <button type="button" class="btn ghost small" id="csvAg">Ejemplo del agente</button>
+          <button type="button" class="btn ghost small" id="csvAgBad">Agente con errores</button>
+          <button type="button" class="btn ghost small" id="csvGood">Ejemplo Excel propio</button>
+          <button type="button" class="btn ghost small" id="csvBad">Excel con errores</button>
+          <button type="button" class="btn ghost small" id="csvCopy">Copiar plantilla Excel</button>
+        </div>
+        <div id="csvOut" class="preview" hidden aria-live="polite"></div>
+      </div>
+
+      <div class="tips">
+        <div class="tip bad"><h3>Cada paso salió como un caso distinto</h3><p>Repetiste el Name en todas las filas. Déjalo solo en la primera fila de cada caso.</p></div>
+        <div class="tip bad"><h3>Salen símbolos raros en vez de tildes</h3><p>El archivo no quedó en UTF-8, o elegiste otra codificación en Setup. Guarda como "CSV UTF-8".</p></div>
+        <div class="tip bad"><h3>Todo quedó en una sola columna</h3><p>El delimitador no coincide. Revisa si tu archivo usa coma o punto y coma.</p></div>
+        <div class="tip"><h3>Prueba primero con 3 casos</h3><p>Sube un archivo pequeño a una carpeta de prueba. Si queda bien, subes el resto.</p></div>
+      </div>
+    </section>
+
+    <!-- M4 -->
+    <section id="m4">
+      <div class="eyebrow">Módulo 05</div>
+      <h2>Ejecutar: el ciclo de pruebas</h2>
+      <p>Un caso escrito no sirve hasta que se ejecuta. Para eso creas un <b>Test Cycle</b> en la pestaña <kbd>Test Cycles</kbd>: le pones nombre (ej: "Regresión Sprint 22"), le agregas los casos, asignas responsable, ambiente y versión, y le das <kbd>Run</kbd>. Cada caso dentro del ciclo termina con uno de estos estados:</p>
+      <div class="legend">
+        <div><span class="st st-none">Not Executed</span>Todavía nadie lo corre. Así empiezan todos.</div>
+        <div><span class="st st-prog">In Progress</span>Alguien lo está ejecutando ahora.</div>
+        <div><span class="st st-pass">Pass</span>Todo salió como decía el resultado esperado.</div>
+        <div><span class="st st-fail">Fail</span>Algo no coincidió. Aquí se reporta el bug.</div>
+        <div><span class="st st-block">Blocked</span>No se pudo probar (ambiente caído, falta un dato, depende de otro bug).</div>
+      </div>
+
+      <div class="cycle" id="lab2">
+        <div class="lab-head" style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><h3>Práctica 3 · Corre este ciclo</h3><span class="tag">Simulador</span></div>
+        <div class="cyc-top">
+          <div><div class="pv-key">PROY-R4 · Ambiente QA · v2.3.0</div><div class="pv-name">Regresión Sprint 22 · Recargas</div></div>
+          <button class="btn ghost small" id="resetCycle" type="button">Reiniciar ciclo</button>
+        </div>
+        <div class="stack" id="stack" aria-hidden="true"></div>
+        <div class="counts" id="counts"></div>
+        <div class="exec" id="execList"></div>
+        <div class="toast" id="cycMsg" aria-live="polite">Marca un resultado en cada caso. Prueba marcar uno como Fail para ver qué pasa.</div>
+      </div>
+    </section>
+
+    <!-- M5 -->
+    <section id="m5">
+      <div class="eyebrow">Módulo 06</div>
+      <h2>Trazabilidad y reportes: la parte que ve el jefe</h2>
+      <p>Trazabilidad es poder seguir el hilo de punta a punta. Si enlazas bien, Zephyr responde solo preguntas como "¿esta historia tiene pruebas?" o "¿este bug viene de qué caso?".</p>
+      <div class="trace">
+        <div class="box"><small>Requisito</small>PROY-245 Recargas</div><span class="arr">→</span>
+        <div class="box"><small>Caso</small>PROY-T12</div><span class="arr">→</span>
+        <div class="box"><small>Ciclo</small>PROY-R4</div><span class="arr">→</span>
+        <div class="box"><small>Resultado</small><span class="st st-fail">Fail</span></div><span class="arr">→</span>
+        <div class="box"><small>Bug</small>PROY-301</div>
+      </div>
+      <p>Con esa cadena puedes sacar, desde la pestaña <kbd>Reports</kbd>, reportes de avance de ejecución, cobertura de requisitos y defectos por ciclo, o poner gadgets en un dashboard de Jira. Si un caso no está enlazado, simplemente no aparece en la cobertura.</p>
+    </section>
+
+    <!-- M6 -->
+    <section id="m6">
+      <div class="eyebrow">Módulo 07</div>
+      <h2>Buenas prácticas para no sufrir después</h2>
+      <div class="tips">
+        <div class="tip"><h3>Un caso, un objetivo</h3><p>Si el nombre necesita la palabra "y", probablemente son dos casos.</p></div>
+        <div class="tip"><h3>Nombres que se entienden solos</h3><p>"Recarga exitosa con valor mínimo" se entiende. "Prueba 1" no.</p></div>
+        <div class="tip"><h3>Resultado esperado verificable</h3><p>"Funciona bien" no se puede comprobar. "Se muestra comprobante con estado Exitosa" sí.</p></div>
+        <div class="tip"><h3>Carpetas por funcionalidad</h3><p>Organiza el recetario por módulo y usa labels para lo transversal (regresión, smoke).</p></div>
+        <div class="tip"><h3>Reutiliza, no copies</h3><p>Un mismo caso se agrega a muchos ciclos. Duplicarlo hace que se desactualicen por separado.</p></div>
+        <div class="tip bad"><h3>Evita: Blocked sin explicación</h3><p>Siempre deja un comentario de por qué está bloqueado y de qué depende.</p></div>
+      </div>
+    </section>
+
+    <!-- M7 -->
+    <section id="m7">
+      <div class="eyebrow">Módulo 08</div>
+      <h2>Práctica 4 · Quiz final</h2>
+      <div class="quiz" id="quiz" aria-live="polite">
+        <div class="q-count" id="qCount"></div>
+        <div class="q-text" id="qText"></div>
+        <div class="answers" id="qAns"></div>
+        <div class="feedback" id="qFb"></div>
+        <div class="q-nav"><span class="muted" id="qScore"></span><button class="btn" id="qNext" type="button" hidden>Siguiente</button></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+  const done = new Set();
+  function mark(k){ done.add(k); const n=done.size; document.getElementById('progTxt').textContent=n+' de 4'; document.getElementById('progBar').style.width=(n/4*100)+'%'; }
+
+  // rail activo
+  const links=[...document.querySelectorAll('nav.rail a')];
+  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle('on',l.getAttribute('href')==='#'+e.target.id));}})},{rootMargin:'-40% 0px -55% 0px'});
+  document.querySelectorAll('main section').forEach(s=>io.observe(s));
+
+  // M1 tarjetas
+  document.querySelectorAll('.an').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('flip')));
+
+  // M2 diagrama
+  const info={
+    story:'<b>Historia Jira.</b> Es el requisito o funcionalidad que el equipo de desarrollo construye. Es lo que queremos probar.',
+    case:'<b>Caso de prueba (T).</b> La receta: nombre, objetivo, precondición y pasos con resultado esperado. Vive en el recetario, organizado en carpetas.',
+    cycle:'<b>Ciclo (R).</b> Una ronda de ejecución: qué casos, quién los corre, en qué ambiente y versión. Un mismo caso puede estar en muchos ciclos.',
+    exec:'<b>Ejecución.</b> El resultado de correr un caso dentro de un ciclo. Guarda quién, cuándo, el estado (Pass, Fail, Blocked…) y la evidencia.',
+    bug:'<b>Bug.</b> Si una ejecución falla, creas o enlazas el defecto en Jira desde la misma pantalla. Queda conectado con el caso y el ciclo.',
+    plan:'<b>Plan de pruebas (P).</b> Opcional. Agrupa varios ciclos para ver el avance de un release completo.'
+  };
+  const ex=document.getElementById('explain');
+  document.querySelectorAll('.node').forEach(n=>{
+    const go=()=>{document.querySelectorAll('.node').forEach(x=>x.classList.remove('on'));n.classList.add('on');ex.innerHTML=info[n.dataset.k];};
+    n.addEventListener('click',go); n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});
+  });
+
+  // tabs
+  const stabs=[...document.querySelectorAll('.srctab')];
+  stabs.forEach(t=>t.addEventListener('click',()=>{stabs.forEach(x=>{x.setAttribute('aria-selected',x===t);document.getElementById(x.getAttribute('aria-controls')).hidden=(x!==t);});}));
+  const tabs=[...document.querySelectorAll('.tab:not(.srctab):not(.colf)')];
+  tabs.forEach(t=>t.addEventListener('click',()=>{tabs.forEach(x=>{x.setAttribute('aria-selected',x===t);document.getElementById(x.getAttribute('aria-controls')).hidden=(x!==t);});}));
+
+  // M3 laboratorio
+  const rows=document.getElementById('stepRows'); let sid=0;
+  function addRow(a='',b=''){sid++;const d=document.createElement('div');d.className='steprow';
+    d.innerHTML='<span class="k"></span><input id="st'+sid+'a" placeholder="Paso"><input id="st'+sid+'b" placeholder="Resultado esperado"><button type="button" aria-label="Quitar paso">×</button>';
+    d.querySelector('[placeholder="Paso"]').value=a; d.querySelector('[placeholder="Resultado esperado"]').value=b;
+    d.querySelector('button').onclick=()=>{d.remove();upd();};
+    rows.appendChild(d); upd();}
+  function upd(){
+    [...rows.children].forEach((r,i)=>r.querySelector('.k').textContent=i+1);
+    const v=id=>document.getElementById(id).value.trim();
+    const steps=[...rows.children].map(r=>{const i=r.querySelectorAll('input');return [i[0].value.trim(),i[1].value.trim()]}).filter(s=>s[0]);
+    document.getElementById('pvName').textContent=v('cName')||'Sin nombre todavía';
+    document.getElementById('pvStatus').textContent=v('cStatus');
+    document.getElementById('pvPrio').textContent=v('cPrio');
+    document.getElementById('pvStory').textContent=v('cStory')?'↔ '+v('cStory'):'Sin historia';
+    document.getElementById('pvSteps').textContent=steps.length+(steps.length===1?' paso':' pasos');
+    const c={name:v('cName').length>10,obj:!!v('cObj'),pre:!!v('cPre'),steps:steps.length>=2,exp:steps.length>0&&steps.every(s=>s[1]),trace:/^[A-Za-z]+-\d+$/.test(v('cStory'))};
+    let n=0; document.querySelectorAll('#checklist li').forEach(li=>{const ok=c[li.dataset.c];li.classList.toggle('ok',ok);if(ok)n++;});
+    document.getElementById('pvScore').textContent=n+'/6';
+    const msg=document.getElementById('labMsg');
+    if(n===6){msg.textContent=v('cStatus')==='Approved'?'Excelente. Este caso está listo para entrar a un ciclo.':'Todo completo. Ya puedes cambiar el Status a Approved.';mark('lab1');}
+    else msg.textContent=v('cStory')&&!c.trace?'La historia debe tener formato de llave de Jira, como PROY-245.':'';
+  }
+  document.getElementById('caseForm').addEventListener('input',upd);
+  document.getElementById('addStep').onclick=()=>addRow();
+  document.getElementById('fillEx').onclick=()=>{
+    cName.value='Recarga exitosa con valor válido';cObj.value='Validar que una recarga con valor permitido genere comprobante exitoso';cPre.value='Cajero con sesión activa y saldo disponible';cStory.value='PROY-245';cStatus.value='Approved';
+    rows.innerHTML='';addRow('Ingresar al módulo de recargas','Se muestra el formulario');addRow('Ingresar número y valor $10.000','Los datos se validan sin error');addRow('Confirmar la recarga','Comprobante con estado Exitosa');};
+  document.getElementById('clearCase').onclick=()=>{document.getElementById('caseForm').reset();rows.innerHTML='';addRow();addRow();};
+  addRow();addRow();
+
+  // Importar: validador CSV
+  const GOOD='Name,Objective,Precondition,Folder,Status,Priority,Labels,Coverage,Step,Expected Result\n'+
+'Recarga exitosa con valor válido,Validar comprobante exitoso,Cajero con sesión activa,Recargas/Celular,Draft,High,regresion,PROY-245,Ingresar al módulo de recargas,Se muestra el formulario\n'+
+',,,,,,,,Ingresar número y valor $10.000,Datos validados sin error\n'+
+',,,,,,,,Confirmar la recarga,Comprobante con estado Exitosa\n'+
+'Recarga con número inválido,Validar mensaje de error,Cajero con sesión activa,Recargas/Celular,Draft,Normal,regresion,PROY-245,Ingresar número de 7 dígitos,"Mensaje ""Número inválido"""';
+  const BAD='Name;Objective;Folder;Coverage;Step;Expected Result\n'+
+'Reimpresión de comprobante;Validar reimpresión;Recargas/Comprobantes;PROY-260;Buscar la transacción;Se lista la transacción\n'+
+'Reimpresión de comprobante;Validar reimpresión;Recargas/Comprobantes;PROY-260;Clic en Reimprimir;\n'+
+';;;;Validar datos impresos;Coinciden con la transacción\n'+
+'Consulta de saldo;Validar saldo;Recargas;proy 270;Abrir consulta de saldo;Se muestra el saldo\n'+
+'AnulaciÃ³n de recarga;;Recargas;;;';
+  const csvIn=document.getElementById('csvIn');
+  function parseCSV(t){
+    t=t.replace(/^﻿/,'');
+    const first=t.split(/\r?\n/)[0]||'';
+    const d=(first.split(';').length>first.split(',').length)?';':',';
+    const rows=[];let row=[],f='',q=false;
+    for(let i=0;i<t.length;i++){const c=t[i];
+      if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}
+      else if(c==='"')q=true;
+      else if(c===d){row.push(f);f='';}
+      else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(f);rows.push(row);row=[];f='';}
+      else f+=c;}
+    if(f!==''||row.length){row.push(f);rows.push(row);}
+    return {d,rows:rows.filter(r=>r.some(x=>x.trim()!==''))};
+  }
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const AGH='testCaseId,storyId,title,functionality,platform,scenarioType,testType,testLevel,testDomain,designTechnique,designTechniqueJustification,coverageType,priority,automationCandidate,riskLevel,preconditions,testData,steps,stepCount,gherkin,expectedResult,postconditions,traceability,acceptanceCriteriaCovered,executionStatus,actualResult,approvedBy,executionDate,executionTime,comments,generatedBy,inScope,outOfScope';
+  const agRow=(id,story,title,dom,prio,pre,steps,n,exp,status)=>[id,story,title,'Recargas','Web','Positivo','Funcional','System',dom,'Partición de equivalencia','Valor dentro del rango válido','Criterios de aceptación',prio,'Sí','Medio',pre,'Valor $10.000','"'+steps+'"',n,'"Característica: Recargas\nEscenario: '+title+'\nDado que el cajero inició sesión\nCuando realiza la recarga\nEntonces '+exp+'"',exp,'','AC-01','AC-01',status,'','','','','','Agente de Gobernanza QA','Recargas celular','Pagos de facturas'].join(',');
+  const AG=AGH+'\n'+
+    agRow('CP-001','PROY-245','Recarga exitosa con valor válido','Funcional','Alta','Cajero con sesión activa','1. Ingresar al módulo de recargas\n2. Ingresar número y valor $10.000\n3. Confirmar la recarga',3,'se genera el comprobante con estado Exitosa','PENDIENTE')+'\n'+
+    agRow('CP-002','PROY-245','Recarga con número inválido','Funcional','Media','Cajero con sesión activa','1. Ingresar al módulo de recargas\n2. Ingresar un número de 7 dígitos\n3. Intentar confirmar',3,'se muestra el mensaje Número inválido','PENDIENTE')+'\n'+
+    agRow('CP-003','PROY-245','Recarga desde el menú principal','Smoke','Alta','Cajero con sesión activa','1. Abrir el menú principal\n2. Seleccionar Recargas',2,'se abre el formulario de recarga','PENDIENTE');
+  const AGBAD=AGH+'\n'+
+    agRow('CP-001','PROY-245','Recarga exitosa con valor válido','Funcional','Alta','Cajero con sesión activa','1. Ingresar al módulo de recargas\n2. Ingresar número y valor $10.000\n3. Confirmar la recarga',2,'se genera el comprobante con estado Exitosa','PENDIENTE')+'\n'+
+    agRow('CP-002','historia 245','Recarga con número inválido','Funcional','Media','Cajero con sesión activa','1. Ingresar un número de 7 dígitos',1,'','PASS')+'\n'+
+    agRow('CP-003','PROY-245','Recarga exitosa con valor válido','Funcional','Alta','','',0,'se genera el comprobante','PENDIENTE');
+  csvIn.value=AG;
+  function checkAgent(rows,d,out){
+    const H=rows[0].map(h=>h.trim().replace(/^﻿/,''));const ix=n=>H.indexOf(n);
+    const errs=[],warns=[];const need=['title','steps','expectedResult'];
+    need.forEach(c=>{if(ix(c)<0)errs.push('Falta la columna <b>'+c+'</b>. Sin ella no se puede importar bien.');});
+    const seen={},cases=[];
+    if(!errs.length)rows.slice(1).forEach((r,k)=>{
+      const ln=k+2,g=n=>ix(n)>=0?(r[ix(n)]||'').trim():'';
+      const t=g('title')||'(sin título)',id=g('testCaseId')||('fila '+ln),tag='<b>'+esc(id)+'</b>';
+      if(r.join('').match(/Ã.|Â./))warns.push(tag+': caracteres raros (ej. "Ã³"). Parece que el archivo se guardó sin UTF-8, quizás al abrirlo con Excel.');
+      if(!g('title'))errs.push(tag+': no tiene <span class="mono">title</span>, que es el Name obligatorio en Zephyr.');
+      if(seen[g('title')])warns.push(tag+': el título <b>'+esc(t)+'</b> ya aparece en '+esc(seen[g('title')])+'. Zephyr creará dos casos con el mismo nombre.');
+      if(g('title'))seen[g('title')]=id;
+      const st=g('steps');const n=st?st.split(/\r?\n/).filter(l=>/^\s*\d+[.)]/.test(l)).length:0;
+      if(!st)errs.push(tag+': la columna <span class="mono">steps</span> está vacía.');
+      else if(n<2)errs.push(tag+': tiene '+n+' paso numerado. La skill exige al menos 2.');
+      const sc=g('stepCount');
+      if(st&&sc!==''&&+sc!==n)warns.push(tag+': <span class="mono">stepCount</span> dice '+esc(sc)+' pero conté '+n+' pasos numerados.');
+      if(!g('expectedResult'))errs.push(tag+': no tiene <span class="mono">expectedResult</span>.');
+      const sid=g('storyId');
+      if(ix('storyId')>=0&&sid&&!/^[A-Z][A-Z0-9]+-\d+$/.test(sid))warns.push(tag+': storyId <b>'+esc(sid)+'</b> no es una llave de Jira. Zephyr no lo podrá enlazar en Coverage.');
+      if(ix('storyId')>=0&&!sid)warns.push(tag+': sin storyId. El caso quedará sin enlace a la historia.');
+      const es=g('executionStatus');
+      if(es&&!/^pendiente$/i.test(es))warns.push(tag+': executionStatus = '+esc(es)+'. Ese dato no se importa; el resultado se registra al ejecutar en un ciclo.');
+      cases.push({id,t,n,dom:g('testDomain')});
+    });
+    let h='<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px"><b>Detecté un CSV del Agente de Gobernanza QA</b><span class="pill">Delimitador: '+(d===';'?'punto y coma ( ; )':'coma ( , )')+'</span></div>';
+    h+='<div class="score">'+cases.length+' casos · 1 fila por caso</div>';
+    if(cases.length)h+='<ul class="check">'+cases.map(c=>'<li class="ok"><span class="mono">'+esc(c.id)+'</span> '+esc(c.t)+' <span class="muted">· '+c.n+' pasos'+(c.dom?' · carpeta '+esc(c.dom):'')+'</span></li>').join('')+'</ul>';
+    if(errs.length)h+='<div class="bug" style="flex-direction:column;align-items:flex-start;gap:4px"><b style="color:var(--fail)">'+errs.length+' error(es) que debes corregir</b>'+errs.map(e=>'<div>• '+e+'</div>').join('')+'</div>';
+    if(warns.length)h+='<div class="bug" style="background:var(--block-soft);flex-direction:column;align-items:flex-start;gap:4px"><b style="color:var(--block)">'+warns.length+' aviso(s) para revisar</b>'+warns.map(e=>'<div>• '+e+'</div>').join('')+'</div>';
+    if(!errs.length){h+='<div style="color:var(--pass);font-weight:700">'+(warns.length?'Se puede importar, pero revisa los avisos.':'Listo para importar. En Field Mapping usa la tabla de mapeo del agente.')+'</div>';mark('lab3');}
+    out.innerHTML=h;
+  }
+  function checkCSV(){
+    const out=document.getElementById('csvOut');out.hidden=false;
+    const {d,rows}=parseCSV(csvIn.value);
+    const errs=[],warns=[];
+    if(rows.length<2){out.innerHTML='<b>Pega un CSV con la fila de títulos y al menos una fila de datos.</b>';return;}
+    const hh=rows[0].map(h=>h.trim().replace(/^﻿/,''));
+    if(hh.includes('testCaseId')||(hh.includes('title')&&hh.includes('steps'))){checkAgent(rows,d,out);return;}
+    const H=rows[0].map(h=>h.trim().toLowerCase());
+    const find=(...k)=>H.findIndex(h=>k.some(x=>h===x||h.includes(x)));
+    const iN=find('name','nombre'),iSt=H.findIndex(h=>(h.includes('step')||h==='paso'||h.includes('paso'))&&!h.includes('expected')&&!h.includes('esperado')),
+      iEx=find('expected','esperado'),iPT=find('plain text','texto plano'),iCov=find('coverage','cobertura'),iFo=find('folder','carpeta');
+    if(iN<0){errs.push('No encuentro la columna <b>Name</b>. Es la única obligatoria y Zephyr la usa para separar un caso de otro.');}
+    if(iSt>=0&&iPT>=0)errs.push('Tienes columna de pasos y columna de texto plano. Usa solo una de las dos formas.');
+    if(iSt>=0&&iEx<0)warns.push('Hay columna de pasos pero no de <b>Expected Result</b>.');
+    const cases=[];let cur=null;const seen={};
+    if(iN>=0)rows.slice(1).forEach((r,ix)=>{
+      const ln=ix+2,g=i=>i>=0?(r[i]||'').trim():'';
+      const nm=g(iN),st=g(iSt),exp=g(iEx);
+      if(r.join('').match(/Ã.|Â./))warns.push('Fila '+ln+': veo caracteres raros (ej. "Ã³"). El archivo no está en UTF-8; guárdalo como "CSV UTF-8".');
+      if(nm){
+        if(cur&&cur.name===nm)errs.push('Fila '+ln+': repite el nombre <b>'+esc(nm)+'</b>. Zephyr creará un caso nuevo por cada fila con nombre. Deja Name vacío en las filas de pasos.');
+        else if(seen[nm])warns.push('Fila '+ln+': ya existe otro caso llamado <b>'+esc(nm)+'</b> más arriba en el archivo.');
+        seen[nm]=1;cur={name:nm,steps:0,line:ln};cases.push(cur);
+        const cov=g(iCov);
+        if(cov&&!cov.split(',').every(k=>/^[A-Z][A-Z0-9]+-\d+$/.test(k.trim())))errs.push('Fila '+ln+': Coverage <b>'+esc(cov)+'</b> no es una llave de Jira válida (ej: PROY-245).');
+        if(iFo>=0&&!g(iFo))warns.push('Fila '+ln+': sin Folder. Quedará en la carpeta destino que elijas en Setup.');
+      }else if(!st&&!exp){return;}
+      else if(!cur){errs.push('Fila '+ln+': tiene un paso pero ningún caso arriba al cual pertenecer.');return;}
+      if(st){cur.steps++;if(iEx>=0&&!exp)warns.push('Fila '+ln+': el paso "'+esc(st.slice(0,40))+'" no tiene resultado esperado.');}
+      else if(exp&&!st)warns.push('Fila '+ln+': hay resultado esperado sin paso.');
+    });
+    cases.forEach(c=>{if(iSt>=0&&c.steps===0)warns.push('El caso <b>'+esc(c.name)+'</b> (fila '+c.line+') no tiene pasos.');});
+    const totalSteps=cases.reduce((a,c)=>a+c.steps,0);
+    let h='<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px"><b>Así lo leerá Zephyr</b><span class="pill">Delimitador: '+(d===';'?'punto y coma ( ; )':'coma ( , )')+'</span></div>';
+    h+='<div class="score">'+cases.length+' casos · '+totalSteps+' pasos</div>';
+    if(cases.length)h+='<ul class="check">'+cases.map(c=>'<li class="ok">'+esc(c.name)+' <span class="muted">· '+c.steps+(c.steps===1?' paso':' pasos')+'</span></li>').join('')+'</ul>';
+    if(errs.length)h+='<div class="bug" style="flex-direction:column;align-items:flex-start;gap:4px"><b style="color:var(--fail)">'+errs.length+' error(es) que debes corregir</b>'+errs.map(e=>'<div>• '+e+'</div>').join('')+'</div>';
+    if(warns.length)h+='<div class="bug" style="background:var(--block-soft);flex-direction:column;align-items:flex-start;gap:4px"><b style="color:var(--block)">'+warns.length+' aviso(s) para revisar</b>'+warns.map(e=>'<div>• '+e+'</div>').join('')+'</div>';
+    if(!errs.length){h+='<div style="color:var(--pass);font-weight:700">'+(warns.length?'Se puede importar, pero revisa los avisos.':'Todo bien. Este archivo está listo para Import from File.')+'</div>';mark('lab3');}
+    out.innerHTML=h;
+  }
+  document.getElementById('csvCheck').onclick=checkCSV;
+  document.getElementById('csvAg').onclick=()=>{csvIn.value=AG;checkCSV();};
+  document.getElementById('csvAgBad').onclick=()=>{csvIn.value=AGBAD;checkCSV();};
+  document.getElementById('csvGood').onclick=()=>{csvIn.value=GOOD;checkCSV();};
+  document.getElementById('csvBad').onclick=()=>{csvIn.value=BAD;checkCSV();};
+  document.getElementById('csvCopy').onclick=e=>{const b=e.currentTarget;
+    const ok=()=>{b.textContent='Copiada ✓';setTimeout(()=>b.textContent='Copiar plantilla',1800);};
+    try{navigator.clipboard.writeText(GOOD).then(ok,()=>{csvIn.value=GOOD;csvIn.select();b.textContent='Seleccionada: Ctrl+C';});}catch(_){csvIn.value=GOOD;csvIn.select();}};
+
+  // Tabla de 33 columnas del agente
+  const COLS=[
+    ['testCaseId','ID del caso que asigna el agente','CP-001','custom','Zephyr crea su propia llave (PROY-T123). Útil para buscar el caso original.'],
+    ['storyId','Llave de la historia de Jira que se prueba','PROY-245','map','Coverage'],
+    ['title','Nombre del caso','Recarga exitosa con valor válido','map','Name (obligatorio)'],
+    ['functionality','Funcionalidad o módulo','Recargas','custom',''],
+    ['platform','Plataforma donde se prueba','Web','custom',''],
+    ['scenarioType','Tipo de escenario','Positivo','map','Labels (opcional)'],
+    ['testType','Tipo de prueba','Funcional','custom',''],
+    ['testLevel','Nivel de prueba ISTQB','System','custom',''],
+    ['testDomain','Dominio del set','Funcional','map','Folder (una carpeta por Smoke, Funcional, Regresión, Carga)'],
+    ['designTechnique','Técnica de diseño ISTQB','Partición de equivalencia','custom',''],
+    ['designTechniqueJustification','Por qué se usó esa técnica','Valor dentro del rango válido','custom',''],
+    ['coverageType','Qué cubre el caso','Criterios de aceptación','custom',''],
+    ['priority','Prioridad del caso','Alta','map','Priority (asocia los valores en Data Mapping)'],
+    ['automationCandidate','Si conviene automatizarlo','Sí','custom',''],
+    ['riskLevel','Nivel de riesgo','Medio','custom',''],
+    ['preconditions','Qué debe existir antes de empezar','Cajero con sesión activa','map','Precondition'],
+    ['testData','Datos que se usan en la prueba','Valor $10.000','custom','El importador no tiene columna de datos por paso.'],
+    ['steps','Acciones numeradas, en una sola celda','1. Ingresar al módulo de recargas\n2. Ingresar número y valor\n3. Confirmar la recarga','map','Test Script (Steps) – Step. Todo queda como un solo paso.'],
+    ['stepCount','Cantidad de pasos','3','skip','Solo sirve para validar el CSV.'],
+    ['gherkin','Escenario Dado / Cuando / Entonces','Característica: Recargas\nEscenario: Recarga exitosa…','custom','El importador CSV no carga scripts BDD.'],
+    ['expectedResult','Un resultado esperado general','Se genera el comprobante con estado Exitosa','map','Test Script (Steps) – Expected Result'],
+    ['postconditions','Estado en que queda el sistema','Saldo descontado','custom',''],
+    ['traceability','Referencias de trazabilidad','AC-01','custom','El enlace real a Jira lo da Coverage.'],
+    ['acceptanceCriteriaCovered','Criterios de aceptación que valida','AC-01; AC-03','custom',''],
+    ['executionStatus','Estado de ejecución','PENDIENTE','skip','Se registra al ejecutar en un ciclo.'],
+    ['actualResult','Resultado obtenido','(vacío)','skip','Se registra al ejecutar en un ciclo.'],
+    ['approvedBy','Quién aprueba','(vacío)','skip','Los casos no se aprueban uno a uno.'],
+    ['executionDate','Fecha de ejecución','(vacío)','skip','Zephyr la guarda sola al ejecutar.'],
+    ['executionTime','Hora de ejecución','(vacío)','skip','Zephyr la guarda sola al ejecutar.'],
+    ['comments','Comentarios','(vacío)','skip','Se escriben en la ejecución.'],
+    ['generatedBy','Etiqueta de procedencia','Agente de Gobernanza QA','custom','Si se quiere filtrar lo generado por el agente.'],
+    ['inScope','Qué incluye el set','Recargas celular','skip','Es del set completo, se repite en cada fila.'],
+    ['outOfScope','Qué no incluye el set','Pagos de facturas','skip','Es del set completo, se repite en cada fila.']
+  ];
+  const FL={map:['st st-pass','Se mapea'],custom:['st st-prog','Campo personalizado'],skip:['st st-none','No mapear']};
+  function renderCols(f){
+    document.getElementById('colBody').innerHTML=COLS.map((c,i)=>(f==='all'||f===c[3])?'<tr><td class="n">'+(i+1)+'</td><td class="mono">'+c[0]+'</td><td>'+c[1]+'</td><td class="muted">'+esc(c[2]).replace(/\\n/g,'\n')+'</td><td><span class="'+FL[c[3]][0]+'">'+FL[c[3]][1]+'</span>'+(c[4]?'<div style="margin-top:4px">'+(c[3]==='map'?'<b>'+c[4]+'</b>':'<span class="muted">'+c[4]+'</span>')+'</div>':'')+'</td></tr>':'').join('');
+  }
+  document.querySelectorAll('.colf').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.colf').forEach(x=>x.setAttribute('aria-pressed',x===b));renderCols(b.dataset.f);}));
+  renderCols('all');
+
+  // M4 ciclo
+  const ST={none:['Not Executed','st-none','var(--none)'],prog:['In Progress','st-prog','var(--prog)'],pass:['Pass','st-pass','var(--pass)'],fail:['Fail','st-fail','var(--fail)'],block:['Blocked','st-block','var(--block)']};
+  const base=[['PROY-T12','Recarga exitosa con valor válido'],['PROY-T13','Recarga con número inválido muestra error'],['PROY-T14','Recarga con valor menor al mínimo'],['PROY-T15','Reimpresión de comprobante']];
+  let state, bugN;
+  function resetC(){state=base.map(()=>'none');bugN=301;renderC();document.getElementById('cycMsg').textContent='Marca un resultado en cada caso. Prueba marcar uno como Fail para ver qué pasa.';}
+  const bugs={};
+  function renderC(){
+    const L=document.getElementById('execList');L.innerHTML='';
+    base.forEach((c,i)=>{
+      const s=ST[state[i]];const d=document.createElement('div');d.className='ex';
+      d.innerHTML='<div><div class="k">'+c[0]+'</div><div class="nm">'+c[1]+'</div></div><span class="st '+s[1]+'">'+s[0]+'</span>'+
+      '<div class="acts"><button class="i" data-s="prog">▶ Iniciar</button><button class="p" data-s="pass">✓ Pass</button><button class="f" data-s="fail">✕ Fail</button><button class="b" data-s="block">⏸ Blocked</button></div>';
+      if(state[i]==='fail'){const b=document.createElement('div');b.className='bug';
+        if(bugs[i]) b.innerHTML='Bug creado y enlazado: <code>PROY-'+bugs[i]+'</code> · ya aparece en la trazabilidad del caso y del ciclo.';
+        else{b.innerHTML='Falló. En Zephyr, desde aquí mismo creas el defecto. <button class="btn small" type="button">Crear bug en Jira</button>';
+          b.querySelector('button').onclick=()=>{bugs[i]=bugN++;renderC();document.getElementById('cycMsg').textContent='Bien. El bug queda conectado: requisito → caso → ciclo → bug.';};}
+        d.appendChild(b);}
+      if(state[i]==='block'){const b=document.createElement('div');b.className='bug';b.style.background='var(--block-soft)';b.textContent='Recuerda dejar un comentario: ¿por qué está bloqueado y de qué depende?';d.appendChild(b);}
+      d.querySelectorAll('.acts button').forEach(bt=>bt.onclick=()=>{state[i]=bt.dataset.s;if(bt.dataset.s!=='fail')delete bugs[i];renderC();});
+      L.appendChild(d);
+    });
+    const tot=base.length,cnt={};Object.keys(ST).forEach(k=>cnt[k]=state.filter(s=>s===k).length);
+    document.getElementById('stack').innerHTML=['pass','fail','block','prog'].map(k=>'<i style="width:'+(cnt[k]/tot*100)+'%;background:'+ST[k][2]+'"></i>').join('');
+    document.getElementById('counts').innerHTML=Object.keys(ST).map(k=>'<span style="color:'+ST[k][2]+'"><b style="color:var(--fg)">'+cnt[k]+'</b> <em style="font-style:normal;color:var(--muted)">'+ST[k][0]+'</em></span>').join('');
+    const ex=cnt.pass+cnt.fail+cnt.block;
+    if(ex===tot){const failsOk=state.every((s,i)=>s!=='fail'||bugs[i]);
+      document.getElementById('cycMsg').textContent=failsOk?'Ciclo terminado: '+Math.round(cnt.pass/tot*100)+'% de casos pasaron. Esto es lo que verías en el reporte de avance.':'Ciclo terminado, pero tienes casos en Fail sin bug. Créalo antes de cerrar.';
+      if(failsOk)mark('lab2');}
+  }
+  document.getElementById('resetCycle').onclick=()=>{for(const k in bugs)delete bugs[k];resetC();};
+  resetC();
+
+  // M7 quiz
+  const Q=[
+    ['¿Dónde se guardan y organizan los casos de prueba en Zephyr?',['En el ciclo de pruebas','En la Test Library, por carpetas','En los comentarios de la historia'],1,'La Test Library es el "recetario": los casos viven ahí y se reutilizan en ciclos.'],
+    ['Al crear un caso, ¿cuál es el único campo obligatorio?',['Name','Objective','Priority'],0,'Solo el nombre es obligatorio, aunque un buen caso tiene mucho más.'],
+    ['Quieres probar 30 casos en el sprint, asignados a 2 personas y en ambiente QA. ¿Qué creas?',['Un Test Plan','30 casos nuevos','Un Test Cycle'],2,'El ciclo define qué se ejecuta, quién y dónde.'],
+    ['El ambiente de QA está caído y no puedes ejecutar un caso. ¿Qué estado usas?',['Fail','Blocked','Not Executed'],1,'Blocked significa "no se pudo probar". Fail es que se probó y no funcionó.'],
+    ['¿Para qué sirve enlazar el caso a la historia en Traceability?',['Para que el caso se ejecute solo','Para ver la cobertura del requisito y seguir el hilo hasta los bugs','Para cambiar la prioridad de la historia'],1,'Sin enlace, el caso no cuenta en la cobertura ni en los reportes por requisito.'],
+    ['Importaste un CSV y cada paso quedó como un caso diferente. ¿Qué pasó?',['El archivo no estaba en UTF-8','Se repitió el Name en todas las filas de pasos','Faltó mapear la carpeta'],1,'El Name marca dónde empieza un caso. Va solo en la primera fila; las filas de pasos lo llevan vacío.'],
+    ['Vas a importar el CSV que entregó el agente. En Field Mapping, ¿qué columna unes con Name?',['testCaseId','title','storyId'],1,'title es el nombre del caso. storyId va a Coverage, y testCaseId no tiene campo propio en Zephyr.'],
+    ['¿Qué tipo de Test Script usa el formato Given / When / Then?',['Step-by-step','Plain text','BDD (Gherkin)'],2,'BDD usa Gherkin y sirve como puente hacia la automatización con Cucumber.']
+  ];
+  let qi=0,sc=0;
+  function showQ(){
+    const q=Q[qi];document.getElementById('qCount').textContent='Pregunta '+(qi+1)+' de '+Q.length;
+    document.getElementById('qText').textContent=q[0];document.getElementById('qFb').textContent='';
+    document.getElementById('qScore').textContent='Aciertos: '+sc;document.getElementById('qNext').hidden=true;
+    const A=document.getElementById('qAns');A.innerHTML='';
+    q[1].forEach((t,i)=>{const b=document.createElement('button');b.type='button';b.textContent=t;
+      b.onclick=()=>{[...A.children].forEach((x,j)=>{x.disabled=true;if(j===q[2])x.classList.add('right');});
+        if(i===q[2]){sc++;document.getElementById('qFb').innerHTML='<b style="color:var(--pass)">¡Correcto!</b> '+q[3];}
+        else{b.classList.add('wrong');document.getElementById('qFb').innerHTML='<b style="color:var(--fail)">Casi.</b> '+q[3];}
+        document.getElementById('qScore').textContent='Aciertos: '+sc;
+        const nx=document.getElementById('qNext');nx.hidden=false;nx.textContent=qi===Q.length-1?'Ver resultado':'Siguiente';};
+      A.appendChild(b);});
+  }
+  function bindNext(){const nx=document.getElementById('qNext');nx.onclick=null;nx.addEventListener('click',function h(){if(qi<Q.length-1){qi++;showQ();return;}nx.removeEventListener('click',h);finish();});}
+  function finish(){mark('quiz');document.getElementById('qCount').textContent='Resultado';
+    document.getElementById('qText').textContent=sc+' de '+Q.length+(sc>=5?' · ¡Ya sabes usar Zephyr!':sc>=3?' · Vas bien, repasa los módulos 02 y 04':' · Vuelve a revisar los módulos y repite');
+    document.getElementById('qAns').innerHTML='';document.getElementById('qFb').textContent='';
+    const nx=document.getElementById('qNext');nx.textContent='Repetir quiz';const r=()=>{nx.removeEventListener('click',r);qi=0;sc=0;showQ();bindNext();};nx.addEventListener('click',r);}
+  bindNext();
+  showQ();
+})();
+</script>
+
+</body>
+</html>
