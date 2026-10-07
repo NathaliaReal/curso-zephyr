@@ -95,6 +95,12 @@ main > section{display:flex;flex-direction:column;gap:18px}
 .cover-meta{display:flex;gap:28px;flex-wrap:wrap}
 .cover-meta div{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
 .cover-meta b{display:block;font-family:var(--f-display);font-size:1.6rem;color:var(--fg);font-weight:600}
+.flow{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.flow li{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow)}
+.flow .fn{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--ink-on-accent);font-family:var(--f-mono);font-weight:600;font-size:.85rem;display:grid;place-items:center}
+.flow div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.flow b{font-family:var(--f-display);font-size:1.05rem;font-weight:600}
+.flow div span{color:var(--muted);font-size:.93rem;line-height:1.45}
 .cover-cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .meta{display:flex;flex-wrap:wrap;gap:10px}
 .byline{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);letter-spacing:.02em}
@@ -252,8 +258,14 @@ textarea{resize:vertical;min-height:60px}
     <section id="inicio" class="cover">
       <span class="cover-badge">Curso express · Equipo QA</span>
       <h1>Zephyr, explicado como si fuera tu primer día</h1>
-      <p class="lead">Zephyr es una app que vive dentro de Jira y sirve para escribir casos de prueba, ejecutarlos y saber qué pasó. En 8 módulos cortos vas a entender cómo encaja todo y vas a practicar aquí mismo, sin miedo a dañar nada.</p>
-      <div class="cover-why"><div class="lbl">Por qué importa</div><p>Los casos que diseña el Agente de Gobernanza QA terminan en Zephyr. Saber subirlos, ejecutarlos y enlazarlos con Jira es lo que convierte ese diseño en evidencia real de calidad.</p></div>
+      <p class="lead">Zephyr es la app dentro de Jira donde el equipo QA <b>sube sus casos de prueba y les hace seguimiento</b>. Lo primero que haces al llegar es cargar la información que ya tienes; desde ahí, cada vez que ejecutas, cambias el estado del caso y dejas la evidencia.</p>
+      <ol class="flow" aria-label="Cómo se trabaja en Zephyr">
+        <li><span class="fn">1</span><div><b>Carga tus casos</b><span>Escríbelos en Zephyr o impórtalos desde un CSV, como el que entrega el agente.</span></div></li>
+        <li><span class="fn">2</span><div><b>Ejecuta y cambia el estado</b><span>Dentro de un ciclo, marca cada caso como Pass, Fail o Blocked.</span></div></li>
+        <li><span class="fn">3</span><div><b>Adjunta evidencia y haz seguimiento</b><span>Deja capturas o archivos, enlaza los bugs y revisa el avance.</span></div></li>
+      </ol>
+      <p class="muted">En 8 módulos cortos aprendes ese recorrido y lo practicas aquí mismo, sin miedo a dañar nada.</p>
+      <div class="cover-why"><div class="lbl">Por qué importa</div><p>Los casos que diseña el Agente de Gobernanza QA terminan en Zephyr. Subirlos, actualizar su estado y dejar la evidencia es lo que convierte ese diseño en un seguimiento real de calidad.</p></div>
       <div class="cover-meta">
         <div><b>8</b>módulos</div>
         <div><b>4</b>prácticas</div>
