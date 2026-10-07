@@ -38,8 +38,9 @@
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16.5px;line-height:1.6}
-.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:28px 64px;display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px}
-@media (max-width:860px){.wrap{grid-template-columns:minmax(0,1fr);gap:20px}}
+[hidden]{display:none!important}
+html,body{margin:0}
+#app{min-height:100vh;display:flex;flex-direction:column}
 h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.15;margin:0}
 h1{font-size:clamp(2.1rem,5vw,3.2rem);font-weight:600;line-height:1.08}
 h2{font-size:clamp(1.5rem,3vw,2rem);font-weight:600}
@@ -53,27 +54,48 @@ kbd{background:var(--sunk);border:1px solid var(--line);border-bottom-width:2px;
 button{font:inherit;cursor:pointer}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
 
-/* riel */
-nav.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);align-self:start;display:flex;flex-direction:column;gap:4px}
-nav.rail .brand{font-family:var(--f-mono);font-weight:600;color:var(--accent);letter-spacing:.04em;font-size:1.1rem;margin-bottom:10px}
-nav.rail a{display:flex;gap:10px;align-items:baseline;text-decoration:none;color:var(--muted);padding:6px 10px;border-radius:8px;font-size:.95rem}
-nav.rail a span{font-family:var(--f-mono);font-size:.75rem;color:var(--accent)}
-nav.rail a:hover,nav.rail a.on{background:var(--accent-soft);color:var(--fg)}
-.progress{margin-top:14px;font-size:.8rem;color:var(--muted)}
-.bar{height:6px;background:var(--sunk);border-radius:99px;overflow:hidden;margin-top:6px}
+/* cromo tipo curso: crédito, barra superior, navegación inferior */
+.credit-strip{text-align:center;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.03em;color:var(--muted);opacity:.85;padding:5px 12px;border-bottom:1px solid var(--line);background:var(--surface)}
+.topbar{display:flex;align-items:center;gap:16px;padding:14px clamp(16px,4vw,40px);border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:env(safe-area-inset-top,0px);z-index:20}
+.brand{font-family:var(--f-mono);font-size:13.5px;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
+.brand b{color:var(--accent);font-weight:600}
+.dots{display:flex;gap:6px;flex:1;justify-content:center;flex-wrap:wrap}
+.dot{width:28px;height:6px;border-radius:99px;border:0;padding:0;background:var(--line);transition:background .15s,width .15s,opacity .15s}
+.dot:hover{background:var(--muted)}
+.dot.done{background:var(--accent);opacity:.55}
+.dot.active{background:var(--accent);opacity:1;width:38px}
+.step-code{font-family:var(--f-mono);font-size:13.5px;color:var(--muted);min-width:64px;text-align:right;white-space:nowrap}
+.stage{flex:1;width:100%;max-width:920px;margin:0 auto;padding-inline:clamp(18px,4vw,40px);padding-block:clamp(28px,5vw,52px) 40px}
+.navbar{border-top:1px solid var(--line);background:var(--surface);padding:12px clamp(16px,4vw,40px);padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;bottom:0;z-index:20}
+.navbar .mid{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0;text-align:center}
+.navbar .mid .bar{width:140px}
+.navbtn{border-radius:10px;padding:9px 16px;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--fg);display:inline-flex;gap:8px;align-items:center;white-space:nowrap}
+.navbtn:hover:not(:disabled){border-color:var(--accent)}
+.navbtn.primary{background:var(--accent);border-color:var(--accent);color:var(--ink-on-accent)}
+.navbtn.primary:hover:not(:disabled){filter:brightness(1.06)}
+.navbtn:disabled{opacity:.35;cursor:not-allowed}
+.navbtn svg{width:16px;height:16px}
+.bar{height:6px;background:var(--sunk);border-radius:99px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
-@media (max-width:860px){
-  nav.rail{position:static;flex-direction:row;flex-wrap:wrap;gap:6px}
-  nav.rail .brand,.progress{width:100%}
-  nav.rail a{background:var(--surface);border:1px solid var(--line)}
-}
+@media (max-width:640px){.brand{display:none}.navbar .mid .lbl{display:none}.navbtn .txt{display:none}.navbar .mid .bar{width:90px}.dots{gap:4px;flex-wrap:nowrap}.dot{width:16px}.dot.active{width:24px}.step-code{min-width:0}}
+main{min-width:0}
+main > section{display:flex;flex-direction:column;gap:18px}
+.eyebrow{display:flex;align-items:center;gap:8px}
+.eyebrow .icon{width:26px;height:26px;border-radius:7px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none}
+.eyebrow .icon svg{width:15px;height:15px}
 
-main{display:flex;flex-direction:column;gap:72px;min-width:0}
-section{display:flex;flex-direction:column;gap:18px;scroll-margin-top:20px}
-
-/* hero */
-.hero{display:flex;flex-direction:column;gap:16px;padding-top:8px}
-.hero p.lead{font-size:1.2rem;color:var(--muted)}
+/* portada */
+.cover{gap:20px!important;padding-block:12px}
+.cover-badge{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border:1px solid var(--line);padding:6px 12px;border-radius:99px}
+.cover h1{font-size:clamp(2.2rem,6vw,3.4rem)}
+.cover p.lead{font-size:1.15rem;color:var(--muted);max-width:56ch}
+.cover-why{max-width:58ch;padding-left:18px;border-left:3px solid var(--accent)}
+.cover-why .lbl{font-family:var(--f-mono);font-size:12.5px;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:6px}
+.cover-why p{color:var(--muted)}
+.cover-meta{display:flex;gap:28px;flex-wrap:wrap}
+.cover-meta div{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.cover-meta b{display:block;font-family:var(--f-display);font-size:1.6rem;color:var(--fg);font-weight:600}
+.cover-cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .meta{display:flex;flex-wrap:wrap;gap:10px}
 .byline{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);letter-spacing:.02em}
 .byline b{color:var(--fg);font-weight:600}
@@ -215,40 +237,39 @@ textarea{resize:vertical;min-height:60px}
 .feedback{font-size:.95rem;min-height:1.5em}
 .q-nav{display:flex;justify-content:space-between;align-items:center;gap:10px}
 
-footer{font-size:.88rem;color:var(--muted);border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:6px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
-<div class="wrap">
-  <nav class="rail" aria-label="Módulos">
-    <div class="brand">Zephyr desde Cero</div>
-    <a href="#m1"><span>01</span>¿Qué es?</a>
-    <a href="#m2"><span>02</span>Las piezas</a>
-    <a href="#m3"><span>03</span>Crear un caso</a>
-    <a href="#m-imp"><span>04</span>Subir casos</a>
-    <a href="#m4"><span>05</span>Ejecutar</a>
-    <a href="#m5"><span>06</span>Trazabilidad</a>
-    <a href="#m6"><span>07</span>Buenas prácticas</a>
-    <a href="#m7"><span>08</span>Quiz</a>
-    <div class="progress">Prácticas completadas: <b id="progTxt">0 de 4</b><div class="bar"><i id="progBar"></i></div></div>
-  </nav>
+<div id="app">
+  <div class="credit-strip">Contenido elaborado por Nathalia Real · QA Tech Leader</div>
+  <header class="topbar">
+    <div class="brand"><b>ZEPHYR</b> · DESDE CERO</div>
+    <nav class="dots" id="dots" aria-label="Módulos del curso"></nav>
+    <div class="step-code" id="stepCode">INICIO</div>
+  </header>
 
-  <main>
-    <header class="hero">
-      <div class="eyebrow">Curso express · Equipo QA</div>
+  <main class="stage">
+    <section id="inicio" class="cover">
+      <span class="cover-badge">Curso express · Equipo QA</span>
       <h1>Zephyr, explicado como si fuera tu primer día</h1>
       <p class="lead">Zephyr es una app que vive dentro de Jira y sirve para escribir casos de prueba, ejecutarlos y saber qué pasó. En 8 módulos cortos vas a entender cómo encaja todo y vas a practicar aquí mismo, sin miedo a dañar nada.</p>
-      <div class="meta">
+      <div class="cover-why"><div class="lbl">Por qué importa</div><p>Los casos que diseña el Agente de Gobernanza QA terminan en Zephyr. Saber subirlos, ejecutarlos y enlazarlos con Jira es lo que convierte ese diseño en evidencia real de calidad.</p></div>
+      <div class="cover-meta">
+        <div><b>8</b>módulos</div>
+        <div><b>4</b>prácticas</div>
+        <div><b>20–25</b>minutos</div>
+      </div>
+      <div class="cover-cta">
+        <button class="navbtn primary" type="button" id="startBtn">Comenzar el curso <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         <a class="chip" href="https://www.youtube.com/watch?v=6meaQOeq0rQ" target="_blank" rel="noopener">▶ Video base: Testing Para Todos</a>
         <a class="chip" href="https://support.smartbear.com/zephyr/docs/en/index-en.html" target="_blank" rel="noopener">Documentación oficial</a>
-        <span class="chip">⏱ 20–25 min</span>
       </div>
       <p class="byline">Elaborado por <b>Nathalia Real</b> · QA Tech Leader</p>
-    </header>
+    </section>
 
     <!-- M1 -->
     <section id="m1">
-      <div class="eyebrow">Módulo 01</div>
+      <div class="eyebrow"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 6.5c-1.6-1-4-1.5-6.5-1.5v13c2.5 0 4.9.5 6.5 1.5"/><path d="M12 6.5c1.6-1 4-1.5 6.5-1.5v13c-2.5 0-4.9.5-6.5 1.5"/><path d="M12 6.5v13"/></svg></span>Módulo 01</div>
       <h2>¿Qué es Zephyr? Piénsalo como una cocina</h2>
       <p>Antes de ver botones, entiende la idea. Toca cada tarjeta para ver qué significa en Zephyr.</p>
       <div class="analogy">
@@ -262,7 +283,7 @@ footer{font-size:.88rem;color:var(--muted);border-top:1px solid var(--line);padd
 
     <!-- M2 -->
     <section id="m2">
-      <div class="eyebrow">Módulo 02</div>
+      <div class="eyebrow"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l8 4.5-8 4.5-8-4.5L12 3z"/><path d="M4 12l8 4.5 8-4.5"/><path d="M4 16.5l8 4.5 8-4.5"/></svg></span>Módulo 02</div>
       <h2>Las piezas y cómo se conectan</h2>
       <p>Esta es la foto completa. Haz clic en cada caja para ver qué hace.</p>
       <div class="diagram">
@@ -291,7 +312,7 @@ footer{font-size:.88rem;color:var(--muted);border-top:1px solid var(--line);padd
 
     <!-- M3 -->
     <section id="m3">
-      <div class="eyebrow">Módulo 03</div>
+      <div class="eyebrow"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5.5" y="4.5" width="13" height="16" rx="1.6"/><rect x="9" y="3" width="6" height="3" rx="1"/><path d="M8.5 12.5l2 2 4-4.2"/></svg></span>Módulo 03</div>
       <h2>Crear un caso de prueba, paso a paso</h2>
       <p>Así se hace en Zephyr Cloud. Los nombres de los botones van en inglés porque así los verás en pantalla.</p>
       <div class="steps">
@@ -382,7 +403,7 @@ footer{font-size:.88rem;color:var(--muted);border-top:1px solid var(--line);padd
 
     <!-- IMPORTAR -->
     <section id="m-imp">
-      <div class="eyebrow">Módulo 04</div>
+      <div class="eyebrow"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M5 14v5a1 1 0 001 1h12a1 1 0 001-1v-5"/></svg></span>Módulo 04</div>
       <h2>Subir muchos casos de una vez (importar)</h2>
       <p>Crear casos uno por uno sirve para pocos. Si los generó el agente o ya los tienes en Excel, Zephyr los sube todos juntos con un asistente: tienes el <b>CSV</b>, lo <b>importas</b> y <b>unes las columnas</b> con los campos de Zephyr.</p>
 
@@ -501,7 +522,7 @@ footer{font-size:.88rem;color:var(--muted);border-top:1px solid var(--line);padd
 
     <!-- M4 -->
     <section id="m4">
-      <div class="eyebrow">Módulo 05</div>
+      <div class="eyebrow"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M10 8.5l5 3.5-5 3.5z"/></svg></span>Módulo 05</div>
       <h2>Ejecutar: el ciclo de pruebas</h2>
       <p>Un caso escrito no sirve hasta que se ejecuta. Para eso creas un <b>Test Cycle</b> en la pestaña <kbd>Test Cycles</kbd>: le pones nombre (ej: "Regresión Sprint 22"), le agregas los casos, asignas responsable, ambiente y versión, y le das <kbd>Run</kbd>. Cada caso dentro del ciclo termina con uno de estos estados:</p>
       <div class="legend">
@@ -527,7 +548,7 @@ footer{font-size:.88rem;color:var(--muted);border-top:1px solid var(--line);padd
 
     <!-- M5 -->
     <section id="m5">
-      <div class="eyebrow">Módulo 06</div>
+      <div class="eyebrow"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.2"/><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="12" r="2.2"/><path d="M6 8.2V15.8"/><path d="M8.2 6H13a3 3 0 013 3v.8"/></svg></span>Módulo 06</div>
       <h2>Trazabilidad y reportes: la parte que ve el jefe</h2>
       <p>Trazabilidad es poder seguir el hilo de punta a punta. Si enlazas bien, Zephyr responde solo preguntas como "¿esta historia tiene pruebas?" o "¿este bug viene de qué caso?".</p>
       <div class="trace">
@@ -542,7 +563,7 @@ footer{font-size:.88rem;color:var(--muted);border-top:1px solid var(--line);padd
 
     <!-- M6 -->
     <section id="m6">
-      <div class="eyebrow">Módulo 07</div>
+      <div class="eyebrow"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0012 3z"/></svg></span>Módulo 07</div>
       <h2>Buenas prácticas para no sufrir después</h2>
       <div class="tips">
         <div class="tip"><h3>Un caso, un objetivo</h3><p>Si el nombre necesita la palabra "y", probablemente son dos casos.</p></div>
@@ -556,7 +577,7 @@ footer{font-size:.88rem;color:var(--muted);border-top:1px solid var(--line);padd
 
     <!-- M7 -->
     <section id="m7">
-      <div class="eyebrow">Módulo 08</div>
+      <div class="eyebrow"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 9.5a2.5 2.5 0 114 2c-.9.6-1.5 1.1-1.5 2.2"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg></span>Módulo 08</div>
       <h2>Práctica 4 · Quiz final</h2>
       <div class="quiz" id="quiz" aria-live="polite">
         <div class="q-count" id="qCount"></div>
@@ -567,6 +588,12 @@ footer{font-size:.88rem;color:var(--muted);border-top:1px solid var(--line);padd
       </div>
     </section>
   </main>
+
+  <footer class="navbar">
+    <button class="navbtn" type="button" id="prevBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 18l-6-6 6-6"/></svg><span class="txt">Anterior</span></button>
+    <div class="mid"><span class="lbl" id="navLbl">Inicio</span><span>Prácticas: <b id="progTxt">0 de 4</b></span><div class="bar"><i id="progBar"></i></div></div>
+    <button class="navbtn primary" type="button" id="nextBtn"><span class="txt">Siguiente</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </footer>
 </div>
 
 <script>
@@ -574,10 +601,30 @@ footer{font-size:.88rem;color:var(--muted);border-top:1px solid var(--line);padd
   const done = new Set();
   function mark(k){ done.add(k); const n=done.size; document.getElementById('progTxt').textContent=n+' de 4'; document.getElementById('progBar').style.width=(n/4*100)+'%'; }
 
-  // rail activo
-  const links=[...document.querySelectorAll('nav.rail a')];
-  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle('on',l.getAttribute('href')==='#'+e.target.id));}})},{rootMargin:'-40% 0px -55% 0px'});
-  document.querySelectorAll('main section').forEach(s=>io.observe(s));
+  // navegación por pantallas, como el curso de ISTQB
+  const slides=[...document.querySelectorAll('main.stage > section')];
+  const LBL=['Inicio','¿Qué es Zephyr?','Las piezas','Crear un caso','Subir casos','Ejecutar','Trazabilidad','Buenas prácticas','Quiz final'];
+  const dotsEl=document.getElementById('dots');let cur=0;
+  slides.forEach((s,i)=>{const b=document.createElement('button');b.type='button';b.className='dot';b.title=LBL[i];b.setAttribute('aria-label',LBL[i]);b.onclick=()=>go(i);dotsEl.appendChild(b);});
+  function go(i){
+    cur=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach((s,k)=>s.hidden=k!==cur);
+    [...dotsEl.children].forEach((d,k)=>{d.classList.toggle('active',k===cur);d.classList.toggle('done',k<cur);d.setAttribute('aria-current',k===cur?'step':'false');});
+    document.getElementById('stepCode').textContent=cur===0?'INICIO':String(cur).padStart(2,'0')+' / '+String(slides.length-1).padStart(2,'0');
+    document.getElementById('navLbl').textContent=cur===0?'Inicio':'Módulo '+String(cur).padStart(2,'0')+' · '+LBL[cur];
+    document.getElementById('prevBtn').disabled=cur===0;
+    const nx=document.getElementById('nextBtn');nx.disabled=cur===slides.length-1;
+    nx.querySelector('.txt').textContent=cur===0?'Comenzar':'Siguiente';
+    try{history.replaceState(null,'','#'+slides[cur].id);}catch(_){}
+    window.scrollTo(0,0);
+  }
+  document.getElementById('prevBtn').onclick=()=>go(cur-1);
+  document.getElementById('nextBtn').onclick=()=>go(cur+1);
+  document.getElementById('startBtn').onclick=()=>go(1);
+  document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1);});
+  const h=(location.hash||'').slice(1);const hi=slides.findIndex(s=>s.id===h);
+  go(hi>0?hi:0);
+  window.addEventListener('load',()=>window.scrollTo(0,0));
 
   // M1 tarjetas
   document.querySelectorAll('.an').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('flip')));
