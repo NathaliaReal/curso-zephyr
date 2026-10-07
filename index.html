@@ -11,30 +11,18 @@
 <style>
 /* Layout: guía de una columna con riel de módulos pegajoso; cada módulo termina en una práctica interactiva */
 :root{
-  --bg:#FFFFFF; --surface:#FFFFFF; --sunk:#F4F4F4; --fg:#0A0A0A; --muted:#4D4D4D; --line:#E3E3E3;
-  --accent:#D6006E; --accent-soft:#FBE1EC; --ink-on-accent:#FFFFFF;
-  --pass:#2F7A52; --pass-soft:#E3F2EA; --fail:#B3261E; --fail-soft:#FBE4E2;
-  --block:#8A5A00; --block-soft:#F8EDD6; --prog:#D6006E; --prog-soft:#FBE1EC; --none:#6E6E6E; --none-soft:#F0F0F0;
-  --shadow:0 1px 2px rgba(0,0,0,.08),0 8px 24px -12px rgba(0,0,0,.22);
+  /* tema único oscuro: el curso se ve en negro en cualquier navegador */
+  --bg:#0A0A0A; --surface:#141414; --sunk:#1C1C1C; --fg:#FAFAFA; --muted:#B8B8B8; --line:#2B2B2B;
+  --accent:#FF3FA6; --accent-soft:#3A0F26; --ink-on-accent:#170010;
+  --pass:#6FCF9C; --pass-soft:#14301F; --fail:#FF8A80; --fail-soft:#3A1614;
+  --block:#E8B65A; --block-soft:#33260C; --prog:#FF3FA6; --prog-soft:#3A0F26; --none:#9A9A9A; --none-soft:#222222;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 28px -14px rgba(0,0,0,.65);
+  color-scheme:dark;
   --f-display:"Source Serif 4", Georgia, "Times New Roman", serif;
   --f-body:"IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
   --f-mono:"IBM Plex Mono", "SF Mono", Consolas, monospace;
   --r:12px;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0A0A0A; --surface:#141414; --sunk:#1C1C1C; --fg:#FAFAFA; --muted:#B8B8B8; --line:#2B2B2B;
-  --accent:#FF3FA6; --accent-soft:#3A0F26; --ink-on-accent:#170010;
-  --pass:#6FCF9C; --pass-soft:#14301F; --fail:#FF8A80; --fail-soft:#3A1614;
-  --block:#E8B65A; --block-soft:#33260C; --prog:#FF3FA6; --prog-soft:#3A0F26; --none:#9A9A9A; --none-soft:#222222;
-  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 28px -14px rgba(0,0,0,.65);
-  color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0A0A0A; --surface:#141414; --sunk:#1C1C1C; --fg:#FAFAFA; --muted:#B8B8B8; --line:#2B2B2B;
-  --accent:#FF3FA6; --accent-soft:#3A0F26; --ink-on-accent:#170010;
-  --pass:#6FCF9C; --pass-soft:#14301F; --fail:#FF8A80; --fail-soft:#3A1614;
-  --block:#E8B65A; --block-soft:#33260C; --prog:#FF3FA6; --prog-soft:#3A0F26; --none:#9A9A9A; --none-soft:#222222;
-  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 28px -14px rgba(0,0,0,.65);
-  color-scheme:dark}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16.5px;line-height:1.6}
@@ -214,6 +202,10 @@ textarea{resize:vertical;min-height:60px}
 .ex .acts button.f:hover{border-color:var(--fail);color:var(--fail)}
 .ex .acts button.b:hover{border-color:var(--block);color:var(--block)}
 .ex .acts button.i:hover{border-color:var(--prog);color:var(--prog)}
+.evid{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:.9rem;background:var(--accent-soft);border-radius:8px;padding:8px 12px}
+.evid label.btn{cursor:pointer}
+.evchip{font-family:var(--f-mono);font-size:.8rem;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:3px 8px;word-break:break-all}
+.linkbtn{background:none;border:0;color:var(--accent);text-decoration:underline;padding:0;font-size:.85rem}
 .bug{grid-column:1/-1;background:var(--fail-soft);color:var(--fg);border-radius:8px;padding:10px 12px;font-size:.9rem;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .bug code{font-family:var(--f-mono);color:var(--fail);font-weight:600}
 .toast{min-height:1.6em;font-size:.92rem;color:var(--muted)}
@@ -322,102 +314,11 @@ textarea{resize:vertical;min-height:60px}
       <div class="explain" id="explain" aria-live="polite"><b>Toca una caja.</b> Fíjate en las llaves: Zephyr les pone una letra según el tipo. <span class="mono">T</span> = caso, <span class="mono">R</span> = ciclo (de "run"), <span class="mono">P</span> = plan.</div>
     </section>
 
-    <!-- M3 -->
-    <section id="m3">
-      <div class="eyebrow"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5.5" y="4.5" width="13" height="16" rx="1.6"/><rect x="9" y="3" width="6" height="3" rx="1"/><path d="M8.5 12.5l2 2 4-4.2"/></svg></span>Módulo 03</div>
-      <h2>Crear un caso de prueba, paso a paso</h2>
-      <p>Así se hace en Zephyr Cloud. Los nombres de los botones van en inglés porque así los verás en pantalla.</p>
-      <div class="steps">
-        <div class="step" data-n="1"><h3>Entra a tu proyecto y abre Zephyr</h3><p>En el menú del proyecto de Jira busca <b>Zephyr</b>. Ahí ves la pestaña <kbd>Test Cases</kbd> con el panel de carpetas a la izquierda.</p></div>
-        <div class="step" data-n="2"><h3>Elige o crea una carpeta</h3><p>Con <kbd>New Folder</kbd> creas una carpeta (por ejemplo, por módulo o funcionalidad). Selecciónala antes de crear el caso para que quede guardado ahí.</p></div>
-        <div class="step" data-n="3"><h3>Clic en <kbd>+ New Test Case</kbd></h3><p>Se abre una ventana. El único campo obligatorio es <b>Name</b>. Luego eliges cómo guardar:</p>
-          <div class="opts">
-            <div class="opt"><b>Create</b>Guarda y vuelve a la lista.</div>
-            <div class="opt"><b>Create and edit</b>Guarda y te lleva a escribir los pasos. La opción más usada.</div>
-            <div class="opt"><b>Create and record</b>Graba lo que haces en la app para dejar el caso listo para automatizar.</div>
-          </div>
-        </div>
-        <div class="step" data-n="4"><h3>Completa la pestaña <kbd>Details</kbd></h3><p><b>Objective</b> (qué se valida), <b>Precondition</b> (qué debe existir antes), <b>Status</b> (Draft mientras lo escribes, Approved cuando está revisado), <b>Priority</b>, <b>Labels</b>, <b>Components</b> y <b>Owner</b>.</p></div>
-        <div class="step" data-n="5"><h3>Escribe el guion en <kbd>Test Script</kbd></h3><p>Hay tres formas de escribirlo. Mira la diferencia:</p></div>
-        <div class="step" data-n="6"><h3>Enlázalo en <kbd>Traceability</kbd></h3><p>Vincula la historia o requisito de Jira que este caso prueba. Así, desde la historia, cualquiera ve si está cubierta. Las pestañas <kbd>Execution</kbd> e <kbd>History</kbd> te muestran ejecuciones pasadas y cambios del caso.</p></div>
-      </div>
-
-      <div>
-        <div class="tabs" role="tablist" aria-label="Tipos de Test Script">
-          <button class="tab" role="tab" aria-selected="true" aria-controls="sc1" id="t1">Step-by-step</button>
-          <button class="tab" role="tab" aria-selected="false" aria-controls="sc2" id="t2">Plain text</button>
-          <button class="tab" role="tab" aria-selected="false" aria-controls="sc3" id="t3">BDD (Gherkin)</button>
-        </div>
-        <div class="panel" role="tabpanel" id="sc1" aria-labelledby="t1">
-          <p class="muted" style="margin-bottom:10px">Una tabla con <b>paso</b>, <b>datos de prueba</b> y <b>resultado esperado</b>. Es la más clara para casos manuales y la que recomendamos para empezar.</p>
-          <div class="tablewrap"><table>
-            <thead><tr><th>#</th><th>Step</th><th>Test data</th><th>Expected result</th></tr></thead>
-            <tbody>
-              <tr><td class="n">1</td><td>Ingresar al módulo de recargas</td><td>Usuario: cajero_demo</td><td>Se muestra el formulario de recarga</td></tr>
-              <tr><td class="n">2</td><td>Seleccionar operador e ingresar número</td><td>Operador X · 3001234567</td><td>El número se valida sin errores</td></tr>
-              <tr><td class="n">3</td><td>Ingresar valor y confirmar</td><td>$10.000</td><td>Se genera comprobante con estado Exitosa</td></tr>
-            </tbody>
-          </table></div>
-        </div>
-        <div class="panel" role="tabpanel" id="sc2" aria-labelledby="t2" hidden>
-          <p class="muted" style="margin-bottom:10px">Un texto libre. Útil para pruebas exploratorias o checklists cortos, pero al ejecutar no puedes marcar paso por paso.</p>
-          <pre>Validar recarga exitosa:
-- Entrar con cajero_demo al módulo de recargas
-- Recargar $10.000 al 3001234567 (Operador X)
-- Verificar que el comprobante salga con estado Exitosa</pre>
-        </div>
-        <div class="panel" role="tabpanel" id="sc3" aria-labelledby="t3" hidden>
-          <p class="muted" style="margin-bottom:10px">Formato Dado / Cuando / Entonces. Ideal si el equipo trabaja con BDD o va a automatizar con Cucumber.</p>
-          <pre>Feature: Recargas
-  Scenario: Recarga exitosa con valor válido
-    Given que el cajero inició sesión en el módulo de recargas
-    When recarga $10.000 al número 3001234567 del Operador X
-    Then el sistema genera un comprobante con estado "Exitosa"</pre>
-        </div>
-      </div>
-
-      <div class="lab" id="lab1">
-        <div class="lab-head"><h3>Práctica 1 · Arma tu primer caso</h3><span class="tag">Simulador</span></div>
-        <form class="form" id="caseForm" autocomplete="off">
-          <div class="field"><label for="cName">Name <small>(obligatorio)</small></label><input id="cName" placeholder="Ej: Recarga exitosa con valor válido"></div>
-          <div class="field"><label for="cObj">Objective</label><input id="cObj" placeholder="¿Qué se valida?"></div>
-          <div class="field"><label for="cPre">Precondition</label><input id="cPre" placeholder="¿Qué debe existir antes?"></div>
-          <div class="row2">
-            <div class="field"><label for="cStatus">Status</label><select id="cStatus"><option>Draft</option><option>Approved</option><option>Deprecated</option></select></div>
-            <div class="field"><label for="cPrio">Priority</label><select id="cPrio"><option>Normal</option><option>High</option><option>Low</option></select></div>
-          </div>
-          <div class="field"><label for="cStory">Traceability <small>(historia de Jira)</small></label><input id="cStory" placeholder="Ej: PROY-245"></div>
-          <div class="field"><label>Test Script · Step-by-step</label>
-            <div class="steprows" id="stepRows"></div>
-            <div><button type="button" class="btn ghost small" id="addStep">+ Agregar paso</button></div>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost small" id="fillEx">Llenar con un ejemplo</button><button type="button" class="btn ghost small" id="clearCase">Limpiar</button></div>
-        </form>
-        <div class="preview">
-          <div class="pv-key">PROY-T<span id="pvNum">13</span></div>
-          <div class="pv-name" id="pvName">Sin nombre todavía</div>
-          <div class="pills"><span class="pill" id="pvStatus">Draft</span><span class="pill" id="pvPrio">Normal</span><span class="pill" id="pvStory">Sin historia</span></div>
-          <div class="muted" style="font-size:.9rem" id="pvSteps">0 pasos</div>
-          <hr style="border:0;border-top:1px solid var(--line);width:100%;margin:4px 0">
-          <div style="display:flex;justify-content:space-between;align-items:baseline"><b>¿Está listo para aprobar?</b><span class="score" id="pvScore">0/6</span></div>
-          <ul class="check" id="checklist">
-            <li data-c="name">Tiene un nombre claro (más de 10 letras)</li>
-            <li data-c="obj">Dice qué se valida (Objective)</li>
-            <li data-c="pre">Indica la precondición</li>
-            <li data-c="steps">Tiene al menos 2 pasos</li>
-            <li data-c="exp">Cada paso tiene resultado esperado</li>
-            <li data-c="trace">Está enlazado a una historia</li>
-          </ul>
-          <div class="toast" id="labMsg"></div>
-        </div>
-      </div>
-    </section>
-
     <!-- IMPORTAR -->
     <section id="m-imp">
-      <div class="eyebrow"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M5 14v5a1 1 0 001 1h12a1 1 0 001-1v-5"/></svg></span>Módulo 04</div>
-      <h2>Subir muchos casos de una vez (importar)</h2>
-      <p>Crear casos uno por uno sirve para pocos. Si los generó el agente o ya los tienes en Excel, Zephyr los sube todos juntos con un asistente: tienes el <b>CSV</b>, lo <b>importas</b> y <b>unes las columnas</b> con los campos de Zephyr.</p>
+      <div class="eyebrow"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M5 14v5a1 1 0 001 1h12a1 1 0 001-1v-5"/></svg></span>Módulo 03</div>
+      <h2>Subir tus casos de prueba (importar)</h2>
+      <p>Lo primero que haces al llegar a Zephyr es cargar los casos que ya tienes. Si los generó el agente o están en un Excel, Zephyr los sube todos juntos con un asistente: tienes el <b>CSV</b>, lo <b>importas</b> y <b>unes las columnas</b> con los campos de Zephyr.</p>
 
       <div class="legend">
         <div><span class="st st-pass">CSV</span>El formato principal. Si tus casos están en Excel, primero los guardas como CSV (una hoja = un archivo).</div>
@@ -510,7 +411,7 @@ textarea{resize:vertical;min-height:60px}
       </div>
 
       <div class="lab" id="lab3" style="grid-template-columns:minmax(0,1fr)">
-        <div class="lab-head"><h3>Práctica 2 · Revisa tu CSV antes de subirlo</h3><span class="tag">Validador</span></div>
+        <div class="lab-head"><h3>Práctica 1 · Revisa tu CSV antes de subirlo</h3><span class="tag">Validador</span></div>
         <p class="muted">Pega aquí el contenido del CSV (ábrelo con el Bloc de notas, copia y pega) o carga un ejemplo. Reconoce solo si viene del agente o de un Excel propio, te dice cuántos casos va a crear Zephyr y qué está mal. Nada sale de tu navegador.</p>
         <div class="field"><label for="csvIn">Contenido del CSV <small>(la fila 1 debe tener los títulos de columna)</small></label><textarea id="csvIn" rows="9" spellcheck="false" style="font-family:var(--f-mono);font-size:.82rem"></textarea></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -532,10 +433,101 @@ textarea{resize:vertical;min-height:60px}
       </div>
     </section>
 
+    <!-- M3 -->
+    <section id="m3">
+      <div class="eyebrow"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5.5" y="4.5" width="13" height="16" rx="1.6"/><rect x="9" y="3" width="6" height="3" rx="1"/><path d="M8.5 12.5l2 2 4-4.2"/></svg></span>Módulo 04</div>
+      <h2>Escribir un caso directo en Zephyr</h2>
+      <p>Cuando el caso no viene en un archivo, o necesitas agregar uno suelto, lo escribes directo en Zephyr. Los nombres de los botones van en inglés porque así los verás en pantalla.</p>
+      <div class="steps">
+        <div class="step" data-n="1"><h3>Entra a tu proyecto y abre Zephyr</h3><p>En el menú del proyecto de Jira busca <b>Zephyr</b>. Ahí ves la pestaña <kbd>Test Cases</kbd> con el panel de carpetas a la izquierda.</p></div>
+        <div class="step" data-n="2"><h3>Elige o crea una carpeta</h3><p>Con <kbd>New Folder</kbd> creas una carpeta (por ejemplo, por módulo o funcionalidad). Selecciónala antes de crear el caso para que quede guardado ahí.</p></div>
+        <div class="step" data-n="3"><h3>Clic en <kbd>+ New Test Case</kbd></h3><p>Se abre una ventana. El único campo obligatorio es <b>Name</b>. Luego eliges cómo guardar:</p>
+          <div class="opts">
+            <div class="opt"><b>Create</b>Guarda y vuelve a la lista.</div>
+            <div class="opt"><b>Create and edit</b>Guarda y te lleva a escribir los pasos. La opción más usada.</div>
+            <div class="opt"><b>Create and record</b>Graba lo que haces en la app para dejar el caso listo para automatizar.</div>
+          </div>
+        </div>
+        <div class="step" data-n="4"><h3>Completa la pestaña <kbd>Details</kbd></h3><p><b>Objective</b> (qué se valida), <b>Precondition</b> (qué debe existir antes), <b>Status</b> (Draft mientras lo escribes, Approved cuando está revisado), <b>Priority</b>, <b>Labels</b>, <b>Components</b> y <b>Owner</b>.</p></div>
+        <div class="step" data-n="5"><h3>Escribe el guion en <kbd>Test Script</kbd></h3><p>Hay tres formas de escribirlo. Mira la diferencia:</p></div>
+        <div class="step" data-n="6"><h3>Enlázalo en <kbd>Traceability</kbd></h3><p>Vincula la historia o requisito de Jira que este caso prueba. Así, desde la historia, cualquiera ve si está cubierta. Las pestañas <kbd>Execution</kbd> e <kbd>History</kbd> te muestran ejecuciones pasadas y cambios del caso.</p></div>
+      </div>
+
+      <div>
+        <div class="tabs" role="tablist" aria-label="Tipos de Test Script">
+          <button class="tab" role="tab" aria-selected="true" aria-controls="sc1" id="t1">Step-by-step</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="sc2" id="t2">Plain text</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="sc3" id="t3">BDD (Gherkin)</button>
+        </div>
+        <div class="panel" role="tabpanel" id="sc1" aria-labelledby="t1">
+          <p class="muted" style="margin-bottom:10px">Una tabla con <b>paso</b>, <b>datos de prueba</b> y <b>resultado esperado</b>. Es la más clara para casos manuales y la que recomendamos para empezar.</p>
+          <div class="tablewrap"><table>
+            <thead><tr><th>#</th><th>Step</th><th>Test data</th><th>Expected result</th></tr></thead>
+            <tbody>
+              <tr><td class="n">1</td><td>Ingresar al módulo de recargas</td><td>Usuario: cajero_demo</td><td>Se muestra el formulario de recarga</td></tr>
+              <tr><td class="n">2</td><td>Seleccionar operador e ingresar número</td><td>Operador X · 3001234567</td><td>El número se valida sin errores</td></tr>
+              <tr><td class="n">3</td><td>Ingresar valor y confirmar</td><td>$10.000</td><td>Se genera comprobante con estado Exitosa</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="panel" role="tabpanel" id="sc2" aria-labelledby="t2" hidden>
+          <p class="muted" style="margin-bottom:10px">Un texto libre. Útil para pruebas exploratorias o checklists cortos, pero al ejecutar no puedes marcar paso por paso.</p>
+          <pre>Validar recarga exitosa:
+- Entrar con cajero_demo al módulo de recargas
+- Recargar $10.000 al 3001234567 (Operador X)
+- Verificar que el comprobante salga con estado Exitosa</pre>
+        </div>
+        <div class="panel" role="tabpanel" id="sc3" aria-labelledby="t3" hidden>
+          <p class="muted" style="margin-bottom:10px">Formato Dado / Cuando / Entonces. Ideal si el equipo trabaja con BDD o va a automatizar con Cucumber.</p>
+          <pre>Feature: Recargas
+  Scenario: Recarga exitosa con valor válido
+    Given que el cajero inició sesión en el módulo de recargas
+    When recarga $10.000 al número 3001234567 del Operador X
+    Then el sistema genera un comprobante con estado "Exitosa"</pre>
+        </div>
+      </div>
+
+      <div class="lab" id="lab1">
+        <div class="lab-head"><h3>Práctica 2 · Escribe tu primer caso</h3><span class="tag">Simulador</span></div>
+        <form class="form" id="caseForm" autocomplete="off">
+          <div class="field"><label for="cName">Name <small>(obligatorio)</small></label><input id="cName" placeholder="Ej: Recarga exitosa con valor válido"></div>
+          <div class="field"><label for="cObj">Objective</label><input id="cObj" placeholder="¿Qué se valida?"></div>
+          <div class="field"><label for="cPre">Precondition</label><input id="cPre" placeholder="¿Qué debe existir antes?"></div>
+          <div class="row2">
+            <div class="field"><label for="cStatus">Status</label><select id="cStatus"><option>Draft</option><option>Approved</option><option>Deprecated</option></select></div>
+            <div class="field"><label for="cPrio">Priority</label><select id="cPrio"><option>Normal</option><option>High</option><option>Low</option></select></div>
+          </div>
+          <div class="field"><label for="cStory">Traceability <small>(historia de Jira)</small></label><input id="cStory" placeholder="Ej: PROY-245"></div>
+          <div class="field"><label>Test Script · Step-by-step</label>
+            <div class="steprows" id="stepRows"></div>
+            <div><button type="button" class="btn ghost small" id="addStep">+ Agregar paso</button></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost small" id="fillEx">Llenar con un ejemplo</button><button type="button" class="btn ghost small" id="clearCase">Limpiar</button></div>
+        </form>
+        <div class="preview">
+          <div class="pv-key">PROY-T<span id="pvNum">13</span></div>
+          <div class="pv-name" id="pvName">Sin nombre todavía</div>
+          <div class="pills"><span class="pill" id="pvStatus">Draft</span><span class="pill" id="pvPrio">Normal</span><span class="pill" id="pvStory">Sin historia</span></div>
+          <div class="muted" style="font-size:.9rem" id="pvSteps">0 pasos</div>
+          <hr style="border:0;border-top:1px solid var(--line);width:100%;margin:4px 0">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><b>¿Está listo para aprobar?</b><span class="score" id="pvScore">0/6</span></div>
+          <ul class="check" id="checklist">
+            <li data-c="name">Tiene un nombre claro (más de 10 letras)</li>
+            <li data-c="obj">Dice qué se valida (Objective)</li>
+            <li data-c="pre">Indica la precondición</li>
+            <li data-c="steps">Tiene al menos 2 pasos</li>
+            <li data-c="exp">Cada paso tiene resultado esperado</li>
+            <li data-c="trace">Está enlazado a una historia</li>
+          </ul>
+          <div class="toast" id="labMsg"></div>
+        </div>
+      </div>
+    </section>
+
     <!-- M4 -->
     <section id="m4">
       <div class="eyebrow"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M10 8.5l5 3.5-5 3.5z"/></svg></span>Módulo 05</div>
-      <h2>Ejecutar: el ciclo de pruebas</h2>
+      <h2>Ejecutar, cambiar el estado y dejar evidencia</h2>
       <p>Un caso escrito no sirve hasta que se ejecuta. Para eso creas un <b>Test Cycle</b> en la pestaña <kbd>Test Cycles</kbd>: le pones nombre (ej: "Regresión Sprint 22"), le agregas los casos, asignas responsable, ambiente y versión, y le das <kbd>Run</kbd>. Cada caso dentro del ciclo termina con uno de estos estados:</p>
       <div class="legend">
         <div><span class="st st-none">Not Executed</span>Todavía nadie lo corre. Así empiezan todos.</div>
@@ -545,8 +537,24 @@ textarea{resize:vertical;min-height:60px}
         <div><span class="st st-block">Blocked</span>No se pudo probar (ambiente caído, falta un dato, depende de otro bug).</div>
       </div>
 
+      <h3>Cómo se deja la evidencia en Zephyr</h3>
+      <p>Cambiar el estado no basta. Cada ejecución debe quedar con la prueba de lo que pasó, para que cualquiera pueda revisarla después sin repetir la prueba.</p>
+      <div class="steps">
+        <div class="step" data-n="1"><h3>Abre el ciclo y dale <kbd>Run</kbd></h3><p>Se abre el <b>Test Player</b>, la pantalla donde ejecutas cada caso del ciclo.</p></div>
+        <div class="step" data-n="2"><h3>Marca el resultado</h3><p>En cada paso usa <b>Pass</b>, <b>Fail</b> o <b>Blocked</b>. El estado del caso se actualiza solo según los pasos.</p></div>
+        <div class="step" data-n="3"><h3>Escribe el <i>Actual Result</i></h3><p>Lo que realmente pasó. Ahí mismo puedes usar <kbd>Insert Image</kbd> para pegar la captura, o arrastrar la imagen sobre el paso.</p></div>
+        <div class="step" data-n="4"><h3>Adjunta los archivos</h3><p>Abre la sección <kbd>Attachments</kbd> de la ejecución y arrastra el archivo, o usa <kbd>Browse</kbd>.</p></div>
+        <div class="step" data-n="5"><h3>Cierra el hilo</h3><p>Si falló, crea o enlaza el bug desde la misma pantalla. Si quedó bloqueado, deja el comentario de por qué y de qué depende.</p></div>
+      </div>
+      <div class="opts">
+        <div class="opt"><b>Captura de pantalla</b>Del resultado final, con fecha y datos visibles.</div>
+        <div class="opt"><b>Log o respuesta</b>La respuesta del servicio o el log del error.</div>
+        <div class="opt"><b>Comprobante o PDF</b>Lo que genera el sistema al terminar la operación.</div>
+        <div class="opt"><b>Consulta en base de datos</b>Cuando el resultado se valida en el registro guardado.</div>
+      </div>
+
       <div class="cycle" id="lab2">
-        <div class="lab-head" style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><h3>Práctica 3 · Corre este ciclo</h3><span class="tag">Simulador</span></div>
+        <div class="lab-head" style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><h3>Práctica 3 · Ejecuta el ciclo y deja evidencia</h3><span class="tag">Simulador</span></div>
         <div class="cyc-top">
           <div><div class="pv-key">PROY-R4 · Ambiente QA · v2.3.0</div><div class="pv-name">Regresión Sprint 22 · Recargas</div></div>
           <button class="btn ghost small" id="resetCycle" type="button">Reiniciar ciclo</button>
@@ -554,7 +562,7 @@ textarea{resize:vertical;min-height:60px}
         <div class="stack" id="stack" aria-hidden="true"></div>
         <div class="counts" id="counts"></div>
         <div class="exec" id="execList"></div>
-        <div class="toast" id="cycMsg" aria-live="polite">Marca un resultado en cada caso. Prueba marcar uno como Fail para ver qué pasa.</div>
+        <div class="toast" id="cycMsg" aria-live="polite">Marca un resultado en cada caso y deja su evidencia. Prueba marcar uno como Fail para ver qué pasa.</div>
       </div>
     </section>
 
@@ -615,7 +623,7 @@ textarea{resize:vertical;min-height:60px}
 
   // navegación por pantallas, como el curso de ISTQB
   const slides=[...document.querySelectorAll('main.stage > section')];
-  const LBL=['Inicio','¿Qué es Zephyr?','Las piezas','Crear un caso','Subir casos','Ejecutar','Trazabilidad','Buenas prácticas','Quiz final'];
+  const LBL=['Inicio','¿Qué es Zephyr?','Las piezas','Subir casos','Escribir un caso','Ejecutar','Trazabilidad','Buenas prácticas','Quiz final'];
   const dotsEl=document.getElementById('dots');let cur=0;
   slides.forEach((s,i)=>{const b=document.createElement('button');b.type='button';b.className='dot';b.title=LBL[i];b.setAttribute('aria-label',LBL[i]);b.onclick=()=>go(i);dotsEl.appendChild(b);});
   function go(i){
@@ -858,36 +866,58 @@ textarea{resize:vertical;min-height:60px}
   document.querySelectorAll('.colf').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.colf').forEach(x=>x.setAttribute('aria-pressed',x===b));renderCols(b.dataset.f);}));
   renderCols('all');
 
-  // M4 ciclo
+  // M4 ciclo con evidencia
   const ST={none:['Not Executed','st-none','var(--none)'],prog:['In Progress','st-prog','var(--prog)'],pass:['Pass','st-pass','var(--pass)'],fail:['Fail','st-fail','var(--fail)'],block:['Blocked','st-block','var(--block)']};
   const base=[['PROY-T12','Recarga exitosa con valor válido'],['PROY-T13','Recarga con número inválido muestra error'],['PROY-T14','Recarga con valor menor al mínimo'],['PROY-T15','Reimpresión de comprobante']];
-  let state, bugN;
-  function resetC(){state=base.map(()=>'none');bugN=301;renderC();document.getElementById('cycMsg').textContent='Marca un resultado en cada caso. Prueba marcar uno como Fail para ver qué pasa.';}
-  const bugs={};
+  let state,bugN,ev,cm;const bugs={};
+  const cmsg=t=>document.getElementById('cycMsg').textContent=t;
+  function resetC(){state=base.map(()=>'none');ev=base.map(()=>null);cm=base.map(()=>'');for(const k in bugs)delete bugs[k];bugN=301;renderC();cmsg('Marca un resultado en cada caso y deja su evidencia. Prueba marcar uno como Fail para ver qué pasa.');}
   function renderC(){
     const L=document.getElementById('execList');L.innerHTML='';
     base.forEach((c,i)=>{
       const s=ST[state[i]];const d=document.createElement('div');d.className='ex';
       d.innerHTML='<div><div class="k">'+c[0]+'</div><div class="nm">'+c[1]+'</div></div><span class="st '+s[1]+'">'+s[0]+'</span>'+
       '<div class="acts"><button class="i" data-s="prog">▶ Iniciar</button><button class="p" data-s="pass">✓ Pass</button><button class="f" data-s="fail">✕ Fail</button><button class="b" data-s="block">⏸ Blocked</button></div>';
-      if(state[i]==='fail'){const b=document.createElement('div');b.className='bug';
+      const st=state[i];
+      if(st==='pass'||st==='fail'){
+        const e=document.createElement('div');e.className='evid';
+        if(ev[i]) e.innerHTML='<span class="evchip">📎 '+esc(ev[i])+'</span><span class="muted">Evidencia adjunta en Attachments</span><button type="button" class="linkbtn">Quitar</button>';
+        else e.innerHTML='<b>Evidencia:</b><span class="muted">sin adjuntar</span><label class="btn ghost small" for="evf'+i+'">Adjuntar archivo</label><input type="file" id="evf'+i+'" hidden accept="image/*,.pdf,.txt,.log,.json"><button type="button" class="btn ghost small">Usar captura de ejemplo</button>';
+        if(ev[i]) e.querySelector('.linkbtn').onclick=()=>{ev[i]=null;renderC();};
+        else{
+          e.querySelector('input').onchange=x=>{const f=x.target.files&&x.target.files[0];if(f){ev[i]=f.name;renderC();}};
+          e.querySelector('button').onclick=()=>{ev[i]='captura-'+c[0]+'-'+(st==='pass'?'resultado':'error')+'.png';renderC();};
+        }
+        d.appendChild(e);
+      }
+      if(st==='fail'){const b=document.createElement('div');b.className='bug';
         if(bugs[i]) b.innerHTML='Bug creado y enlazado: <code>PROY-'+bugs[i]+'</code> · ya aparece en la trazabilidad del caso y del ciclo.';
         else{b.innerHTML='Falló. En Zephyr, desde aquí mismo creas el defecto. <button class="btn small" type="button">Crear bug en Jira</button>';
-          b.querySelector('button').onclick=()=>{bugs[i]=bugN++;renderC();document.getElementById('cycMsg').textContent='Bien. El bug queda conectado: requisito → caso → ciclo → bug.';};}
+          b.querySelector('button').onclick=()=>{bugs[i]=bugN++;renderC();};}
         d.appendChild(b);}
-      if(state[i]==='block'){const b=document.createElement('div');b.className='bug';b.style.background='var(--block-soft)';b.textContent='Recuerda dejar un comentario: ¿por qué está bloqueado y de qué depende?';d.appendChild(b);}
-      d.querySelectorAll('.acts button').forEach(bt=>bt.onclick=()=>{state[i]=bt.dataset.s;if(bt.dataset.s!=='fail')delete bugs[i];renderC();});
+      if(st==='block'){const b=document.createElement('div');b.className='bug';b.style.background='var(--block-soft)';b.style.flexDirection='column';b.style.alignItems='stretch';
+        b.innerHTML='<label for="cm'+i+'"><b>Comentario:</b> ¿por qué está bloqueado y de qué depende?</label><input id="cm'+i+'" placeholder="Ej: ambiente QA caído desde las 9 a.m., ticket INFRA-88">';
+        const inp=b.querySelector('input');inp.value=cm[i];inp.oninput=()=>{cm[i]=inp.value;summary();};d.appendChild(b);}
+      d.querySelectorAll('.acts button').forEach(bt=>bt.onclick=()=>{state[i]=bt.dataset.s;if(bt.dataset.s!=='fail')delete bugs[i];if(!['pass','fail'].includes(bt.dataset.s))ev[i]=null;renderC();});
       L.appendChild(d);
     });
+    summary();
+  }
+  function summary(){
     const tot=base.length,cnt={};Object.keys(ST).forEach(k=>cnt[k]=state.filter(s=>s===k).length);
     document.getElementById('stack').innerHTML=['pass','fail','block','prog'].map(k=>'<i style="width:'+(cnt[k]/tot*100)+'%;background:'+ST[k][2]+'"></i>').join('');
-    document.getElementById('counts').innerHTML=Object.keys(ST).map(k=>'<span style="color:'+ST[k][2]+'"><b style="color:var(--fg)">'+cnt[k]+'</b> <em style="font-style:normal;color:var(--muted)">'+ST[k][0]+'</em></span>').join('');
-    const ex=cnt.pass+cnt.fail+cnt.block;
-    if(ex===tot){const failsOk=state.every((s,i)=>s!=='fail'||bugs[i]);
-      document.getElementById('cycMsg').textContent=failsOk?'Ciclo terminado: '+Math.round(cnt.pass/tot*100)+'% de casos pasaron. Esto es lo que verías en el reporte de avance.':'Ciclo terminado, pero tienes casos en Fail sin bug. Créalo antes de cerrar.';
-      if(failsOk)mark('lab2');}
+    document.getElementById('counts').innerHTML=Object.keys(ST).map(k=>'<span style="color:'+ST[k][2]+'"><b style="color:var(--fg)">'+cnt[k]+'</b> <em style="font-style:normal;color:var(--muted)">'+ST[k][0]+'</em></span>').join('')+'<span style="color:var(--accent)"><b style="color:var(--fg)">'+ev.filter(Boolean).length+'</b> <em style="font-style:normal;color:var(--muted)">con evidencia</em></span>';
+    if(cnt.pass+cnt.fail+cnt.block<tot){return;}
+    const falt=[];
+    base.forEach((c,i)=>{const st=state[i];
+      if((st==='pass'||st==='fail')&&!ev[i])falt.push(c[0]+' sin evidencia');
+      if(st==='fail'&&!bugs[i])falt.push(c[0]+' en Fail sin bug');
+      if(st==='block'&&cm[i].trim().length<6)falt.push(c[0]+' bloqueado sin comentario');});
+    if(falt.length){cmsg('Todos tienen estado, pero el ciclo no está listo para cerrar: '+falt.join(' · ')+'.');return;}
+    cmsg('Ciclo cerrado: '+Math.round(cnt.pass/tot*100)+'% de casos pasaron, y cada ejecución tiene su evidencia, bug o comentario. Así se ve un seguimiento completo.');
+    mark('lab2');
   }
-  document.getElementById('resetCycle').onclick=()=>{for(const k in bugs)delete bugs[k];resetC();};
+  document.getElementById('resetCycle').onclick=resetC;
   resetC();
 
   // M7 quiz
@@ -896,6 +926,7 @@ textarea{resize:vertical;min-height:60px}
     ['Al crear un caso, ¿cuál es el único campo obligatorio?',['Name','Objective','Priority'],0,'Solo el nombre es obligatorio, aunque un buen caso tiene mucho más.'],
     ['Quieres probar 30 casos en el sprint, asignados a 2 personas y en ambiente QA. ¿Qué creas?',['Un Test Plan','30 casos nuevos','Un Test Cycle'],2,'El ciclo define qué se ejecuta, quién y dónde.'],
     ['El ambiente de QA está caído y no puedes ejecutar un caso. ¿Qué estado usas?',['Fail','Blocked','Not Executed'],1,'Blocked significa "no se pudo probar". Fail es que se probó y no funcionó.'],
+    ['Ejecutaste un caso y pasó. ¿Qué más debes dejar en Zephyr?',['Nada, el estado Pass es suficiente','La evidencia: captura o archivo en Attachments o en el Actual Result','Un bug en Jira'],1,'El estado dice qué pasó; la evidencia lo demuestra. Sin evidencia, nadie puede revisar la ejecución después.'],
     ['¿Para qué sirve enlazar el caso a la historia en Traceability?',['Para que el caso se ejecute solo','Para ver la cobertura del requisito y seguir el hilo hasta los bugs','Para cambiar la prioridad de la historia'],1,'Sin enlace, el caso no cuenta en la cobertura ni en los reportes por requisito.'],
     ['Importaste un CSV y cada paso quedó como un caso diferente. ¿Qué pasó?',['El archivo no estaba en UTF-8','Se repitió el Name en todas las filas de pasos','Faltó mapear la carpeta'],1,'El Name marca dónde empieza un caso. Va solo en la primera fila; las filas de pasos lo llevan vacío.'],
     ['Vas a importar el CSV que entregó el agente. En Field Mapping, ¿qué columna unes con Name?',['testCaseId','title','storyId'],1,'title es el nombre del caso. storyId va a Coverage, y testCaseId no tiene campo propio en Zephyr.'],
@@ -917,7 +948,7 @@ textarea{resize:vertical;min-height:60px}
   }
   function bindNext(){const nx=document.getElementById('qNext');nx.onclick=null;nx.addEventListener('click',function h(){if(qi<Q.length-1){qi++;showQ();return;}nx.removeEventListener('click',h);finish();});}
   function finish(){mark('quiz');document.getElementById('qCount').textContent='Resultado';
-    document.getElementById('qText').textContent=sc+' de '+Q.length+(sc>=5?' · ¡Ya sabes usar Zephyr!':sc>=3?' · Vas bien, repasa los módulos 02 y 04':' · Vuelve a revisar los módulos y repite');
+    document.getElementById('qText').textContent=sc+' de '+Q.length+(sc>=5?' · ¡Ya sabes usar Zephyr!':sc>=3?' · Vas bien, repasa los módulos 02 y 05':' · Vuelve a revisar los módulos y repite');
     document.getElementById('qAns').innerHTML='';document.getElementById('qFb').textContent='';
     const nx=document.getElementById('qNext');nx.textContent='Repetir quiz';const r=()=>{nx.removeEventListener('click',r);qi=0;sc=0;showQ();bindNext();};nx.addEventListener('click',r);}
   bindNext();
